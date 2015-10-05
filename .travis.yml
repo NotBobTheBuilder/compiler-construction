@@ -1,6 +1,6 @@
 language: c
 sudo: true
-script: bash -ex .travis-ci.sh
+script: bash -ex .travis.sh
 matrix:
   include:
     - os: linux
