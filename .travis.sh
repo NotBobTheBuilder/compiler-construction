@@ -1,6 +1,4 @@
-set -e
-
-# Taken from OPAM travis build file: https://github.com/ocaml/opam/blob/ff0fa0f64267da2fa8f6adeb22086ba642eb8d0c/.travis-ci.sh
+# Install bit Taken from OPAM travis build file: https://github.com/ocaml/opam/blob/ff0fa0f64267da2fa8f6adeb22086ba642eb8d0c/.travis-ci.sh
 
 install_on_linux () {
   # Install OCaml PPAs
