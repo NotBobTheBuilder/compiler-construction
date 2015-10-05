@@ -1,0 +1,16 @@
+language: c
+script: bash -ex .travis-ci.sh
+matrix:
+  include:
+    - os: linux
+      env: OCAML=4.02.3
+    - os: linux
+      env: OCAML=4.01.0
+    - os: linux
+      env: OCAML=4.00.1
+    - os: linux
+      env: OCAML=3.12.1
+    - os: osx
+      env: OCAML=4.02.2
+notifications:
+  email: false
