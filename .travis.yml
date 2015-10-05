@@ -4,14 +4,14 @@ script: bash -ex .travis.sh
 matrix:
   include:
     - os: linux
-      env: OCAML=4.02.3
+      env: OCAML_VERSION=4.02.3
     - os: linux
-      env: OCAML=4.01.0
+      env: OCAML_VERSION=4.01.0
     - os: linux
-      env: OCAML=4.00.1
+      env: OCAML_VERSION=4.00.1
     - os: linux
-      env: OCAML=3.12.1
+      env: OCAML_VERSION=3.12.1
     - os: osx
-      env: OCAML=4.02.2
+      env: OCAML_VERSION=4.02.2
 notifications:
   email: false
