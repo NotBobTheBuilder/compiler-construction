@@ -10,11 +10,11 @@ let print_position lexbuf =
 let parse_with_error lexbuf =
   try Parser.top Lexer.read lexbuf with
   | Lexer.SyntaxError msg ->  prerr_string (msg ^ ": ");
-                        print_position lexbuf;
-                        exit (-1)
-  | Parser.Error ->    prerr_string "Parse error: ";
-                        print_position lexbuf;
-                        exit (-1)
+                              print_position lexbuf;
+                              exit (-1)
+  | Parser.Error ->           prerr_string "Parse error: ";
+                              print_position lexbuf;
+                              exit (-1)
 
 let eval s =
     Lexing.from_string s
