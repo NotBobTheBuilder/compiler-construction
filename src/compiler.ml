@@ -5,7 +5,7 @@ open String
 
 let print_position lexbuf =
   let pos = lexbuf.lex_curr_p in
-  Printf.eprintf "Pos %d:%d:%d\n" pos.pos_lnum pos.pos_bol pos.pos_cnum
+  Printf.eprintf "Line %d, Column %d\n" pos.pos_lnum (pos.pos_cnum - pos.pos_bol)
 
 let parse_with_error lexbuf =
   try Parser.top Lexer.read lexbuf with
