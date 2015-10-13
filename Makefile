@@ -5,7 +5,7 @@ clean:
 	rm -f main.native
 	rm -f testsuite.native
 deps:
-	opam install `cat dependencies.txt | xargs`
+	opam install -y `cat dependencies.txt | xargs`
 compile:
 	ocamlbuild -use-menhir -use-ocamlfind -I src/ ./main.native
 compiletest:
