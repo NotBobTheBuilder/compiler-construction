@@ -40,5 +40,6 @@ fi
 
 # End OPAM travis extract
 
-opam init -nq
+opam init -aq
+source ~/.opam/opam-init/init.sh
 make test
