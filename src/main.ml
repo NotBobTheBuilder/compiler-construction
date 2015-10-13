@@ -9,3 +9,4 @@ let _ =
   read_to_empty (Buffer.create 1)
     |> Buffer.contents
     |> Compiler.eval
+    |> Compiler.prettyPrint

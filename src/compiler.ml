@@ -1,6 +1,7 @@
 open Lexing
 open Printf
 open List
+open String
 
 let print_position lexbuf =
   let pos = lexbuf.lex_curr_p in
@@ -18,5 +19,10 @@ let parse_with_error lexbuf =
 let eval s =
     Lexing.from_string s
     |> parse_with_error
-    |> map Js.string_of_statement
-    |> map print_endline
+
+let prettify p =
+  String.concat " " (List.map Js.string_of_statement p)
+
+let prettyPrint p =
+    List.map Js.string_of_statement p
+    |> List.map print_endline
