@@ -40,4 +40,5 @@ fi
 
 # End OPAM travis extract
 
+opam init -nq
 make test
