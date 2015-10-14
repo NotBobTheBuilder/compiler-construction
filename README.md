@@ -17,3 +17,4 @@ What's implemented
 
 - Basic JavaScript assignment & operations
 - Function definitions
+- Function calls

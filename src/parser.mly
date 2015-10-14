@@ -40,6 +40,7 @@ exp:
     | FALSE                   { Js.False }
     | TRUE                    { Js.True }
     | f = func                { f }
+    | f = funcCall            { f }
     | e = exp; ADD; f = exp   { Js.Add (e, f) }
     | e = exp; SUB; f = exp   { Js.Sub (e, f) }
     | e = exp; MUL; f = exp   { Js.Mul (e, f) }
@@ -48,6 +49,8 @@ exp:
     | i = IDENT               { Js.Ident i }
     ;
 
+funcCall:
+  | i = IDENT; BRACKET_OPEN; ps = separated_list(COMMA, exp); BRACKET_CLOSE { Js.Call (i, ps )}
 statement:
     | VAR; e = IDENT; EQ; f = exp; SEMICOLON { Js.Assign (e, f) }
     | e = exp; SEMICOLON                { Js.Expr e }

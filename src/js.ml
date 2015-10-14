@@ -21,6 +21,7 @@ type expr =
   | Ident of string
   | Number of int
   | Function of (string option * string list * expr statement list)
+  | Call of (string * expr list)
 
 let rec string_of_function name params body = match name with
   | None ->
@@ -41,6 +42,7 @@ let rec string_of_expr e = match e with
   | True -> "(True)"
   | False -> "(False)"
   | Function (name, params, body) -> string_of_function name params body
+  | Call (name, params) -> "(Call '" ^ name ^ "' with [" ^ (String.concat "," (map string_of_expr params)) ^ "])"
 
 let string_of_statement s = match s with
   | Expr e -> "(Expr " ^ (string_of_expr e) ^ ");"
