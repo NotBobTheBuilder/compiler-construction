@@ -7,9 +7,9 @@ clean:
 deps:
 	opam install -y `cat dependencies.txt | xargs`
 compile:
-	ocamlbuild -use-menhir -use-ocamlfind -I src/ ./main.native
+	ocamlbuild -use-menhir -use-ocamlfind -I src/ ./src/main.native
 compiletest:
-	ocamlbuild -use-menhir -use-ocamlfind -I src/ -I test/ ./testsuite.native
+	ocamlbuild -use-menhir -use-ocamlfind -I src/ -I test/ ./test/testsuite.native
 build: deps compile
 test: deps compiletest
 	./testsuite.native
