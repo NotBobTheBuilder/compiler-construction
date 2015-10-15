@@ -15,6 +15,7 @@
 %token SEMICOLON
 
 %token FUNCTION
+%token RETURN
 %token BRACKET_OPEN
 %token BRACKET_CLOSE
 %token COMMA
@@ -54,8 +55,9 @@ funcCall:
     ;
 
 statement:
-    | VAR; e = IDENT; EQ; f = exp; SEMICOLON { Js.Assign (e, f) }
-    | e = exp; SEMICOLON                { Js.Expr e }
+    | RETURN; e = exp; SEMICOLON              { Js.Return e }
+    | VAR; e = IDENT; EQ; f = exp; SEMICOLON  { Js.Assign (e, f) }
+    | e = exp; SEMICOLON                      { Js.Expr e }
     ;
 
 func:

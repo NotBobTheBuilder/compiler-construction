@@ -7,6 +7,7 @@ open List
   containing statements, which can in turn contain expressions.
 *)
 type 'e statement =
+  | Return of 'e
   | Assign of (string * 'e)
   | Expr of 'e
 
@@ -45,5 +46,6 @@ let rec string_of_expr e = match e with
   | Call (name, params) -> "(Call '" ^ name ^ "' with [" ^ (String.concat "," (map string_of_expr params)) ^ "])"
 
 let string_of_statement s = match s with
+  | Return e -> "(Return " ^ (string_of_expr e) ^ ")"
   | Expr e -> "(Expr " ^ (string_of_expr e) ^ ");"
   | Assign (id, e) -> "(Assign '" ^ id ^"' " ^ (string_of_expr e) ^ ");"

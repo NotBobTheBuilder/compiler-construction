@@ -18,3 +18,17 @@ What's implemented
 - Basic JavaScript assignment & operations
 - Function definitions
 - Function calls
+
+A sample program:
+
+    var a = 1;
+    var b = 2;
+    function add(x, y) {
+      return x + y;
+    };
+    var mul = function(x, y) {
+      return x * y;
+    };
+    var square = function(x) {
+      return mul(x, x);
+    };

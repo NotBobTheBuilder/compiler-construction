@@ -24,6 +24,7 @@ rule read =
     | newline     { next_line lexbuf; read lexbuf }
     | "var"       { VAR }
     | "function"  { FUNCTION }
+    | "return"    { RETURN }
     | "true"      { TRUE }
     | "false"     { FALSE }
     | '('         { BRACKET_OPEN }
