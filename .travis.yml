@@ -7,10 +7,6 @@ matrix:
       env: OCAML_VERSION=4.02.3
     - os: linux
       env: OCAML_VERSION=4.01.0
-    - os: linux
-      env: OCAML_VERSION=4.00.1
-    - os: linux
-      env: OCAML_VERSION=3.12.1
     - os: osx
       env: OCAML_VERSION=4.02.3
 notifications:
