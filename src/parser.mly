@@ -50,7 +50,9 @@ exp:
     ;
 
 funcCall:
-  | i = IDENT; BRACKET_OPEN; ps = separated_list(COMMA, exp); BRACKET_CLOSE { Js.Call (i, ps )}
+    | i = IDENT; BRACKET_OPEN; ps = separated_list(COMMA, exp); BRACKET_CLOSE { Js.Call (i, ps )}
+    ;
+
 statement:
     | VAR; e = IDENT; EQ; f = exp; SEMICOLON { Js.Assign (e, f) }
     | e = exp; SEMICOLON                { Js.Expr e }
