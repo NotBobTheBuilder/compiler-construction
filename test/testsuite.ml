@@ -30,7 +30,7 @@ let tests = [
       Js.Function(
       None,
       ["a"; "b"],
-      [Js.Return (Js.Add (Js.Ident "a", Js.Ident "b"))]
+      [Js.Return (Js.Mul (Js.Ident "a", Js.Ident "b"))]
     ))]
   );
   ("var square = function square (a) { return mul(a); };", Compiler.Parse [

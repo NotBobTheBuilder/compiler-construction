@@ -4,7 +4,7 @@ open List
 open String
 
 type parse_result =
-  | Parse of Js.expr Js.statement list
+  | Parse of Js.statement list
   | SyntaxError of string
   | ParseError of string
 

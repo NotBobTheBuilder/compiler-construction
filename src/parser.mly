@@ -30,7 +30,7 @@
 %left DIV
 %left MOD
 
-%start <Js.expr Js.statement list> top
+%start <Js.statement list> top
 %%
 top:
     | el = list(statement); EOF { el }

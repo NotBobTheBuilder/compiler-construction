@@ -1,18 +1,12 @@
 open String
 open List
 
-(*
-  Expr is parameterised out so a circular reference can exist between
-  Expr and Statement. This is because functions are expressions
-  containing statements, which can in turn contain expressions.
-*)
-(* TODO: Check mutual recursion stuff to improve string_of_function method *)
-type 'e statement =
-  | Return of 'e
-  | Assign of (string * 'e)
-  | Expr of 'e
-
-type expr =
+type statement =
+  | Return of expr
+  | Assign of (string * expr)
+  | Expr of expr
+and
+expr =
   | Add of (expr * expr)
   | Sub of (expr * expr)
   | Mul of (expr * expr)
@@ -22,18 +16,17 @@ type expr =
   | False
   | Ident of string
   | Number of int
-  | Function of (string option * string list * expr statement list)
+  | Function of (string option * string list * statement list)
   | Call of (string * expr list)
 
-let rec string_of_function name params body = match name with
-  | None ->
-    let ps = String.concat ", " params in
-    "(Function <anonymous> (" ^ ps ^ ") { <body> })"
-  | Some n ->
-    let ps = String.concat ", " params in
-    "(Function '" ^ n ^ "' (" ^ ps ^ ") { <body> })"
+let rec string_of_function name params body =
+  let ps = String.concat ", " params in
+  let b = String.concat " " (map string_of_statement body) in
+  match name with
+  | None ->   "(Function <anonymous> (" ^ ps ^ ") { " ^ b ^ " })"
+  | Some n -> "(Function '" ^ n ^ "' (" ^ ps ^ ") { " ^ b ^ " })"
 
-let rec string_of_expr e = match e with
+and string_of_expr e = match e with
   | Add (lhs, rhs) -> "(Add " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
   | Sub (lhs, rhs) -> "(Sub " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
   | Mul (lhs, rhs) -> "(Mul " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
@@ -46,7 +39,7 @@ let rec string_of_expr e = match e with
   | Function (name, params, body) -> string_of_function name params body
   | Call (name, params) -> "(Call '" ^ name ^ "' with [" ^ (String.concat "," (map string_of_expr params)) ^ "])"
 
-let string_of_statement s = match s with
+and string_of_statement s = match s with
   | Return e -> "(Return " ^ (string_of_expr e) ^ ")"
   | Expr e -> "(Expr " ^ (string_of_expr e) ^ ");"
   | Assign (id, e) -> "(Assign '" ^ id ^"' " ^ (string_of_expr e) ^ ");"
