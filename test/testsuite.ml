@@ -43,8 +43,7 @@ let tests = [
   )
 ]
 
-let passed (s, f, e) =
-  (print_endline "Passed"; (s + 1, f, e))
+let passed (s, f, e) = (s + 1, f, e)
 
 let failed (s, f, e) got not =
   (print_endline ("Failed, got:\n" ^ got ^ "\nNOT:\n" ^ not); (s, f + 1, e))
