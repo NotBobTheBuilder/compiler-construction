@@ -3,26 +3,26 @@ open Printf
 open List
 open String
 
-let print_position lexbuf =
+type parse_result =
+  | Parse of Js.expr Js.statement list
+  | SyntaxError of string
+  | ParseError of string
+
+let string_of_position lexbuf =
   let pos = lexbuf.lex_curr_p in
-  Printf.eprintf "Line %d, Column %d\n" pos.pos_lnum (pos.pos_cnum - pos.pos_bol)
+  let line = string_of_int pos.pos_lnum in
+  let col = string_of_int (pos.pos_cnum - pos.pos_bol) in
+  "Line "^line^", Column "^col
 
-let parse_with_error lexbuf =
-  try Parser.top Lexer.read lexbuf with
-  | Lexer.SyntaxError msg ->  prerr_string (msg ^ ": ");
-                              print_position lexbuf;
-                              exit (-1)
-  | Parser.Error ->           prerr_string "Parse error: ";
-                              print_position lexbuf;
-                              exit (-1)
+let parse lexbuf =
+  try Parse (Parser.top Lexer.read lexbuf) with
+  | Lexer.SyntaxError msg ->  SyntaxError (string_of_position lexbuf)
+  | Parser.Error ->           ParseError (string_of_position lexbuf)
 
-let eval s =
-    Lexing.from_string s
-    |> parse_with_error
+let eval s = parse (Lexing.from_string s)
 
 let prettify p =
   String.concat " " (List.map Js.string_of_statement p)
 
 let prettyPrint p =
-    List.map Js.string_of_statement p
-    |> List.map print_endline
+  List.iter print_endline (List.map Js.string_of_statement p)

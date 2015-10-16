@@ -17,6 +17,7 @@ What's implemented
 
 - Basic JavaScript assignment & operations
 - Function definitions
+- Function expressions
 - Function calls
 
 A sample program:
