@@ -6,6 +6,7 @@ open List
   Expr and Statement. This is because functions are expressions
   containing statements, which can in turn contain expressions.
 *)
+(* TODO: Check mutual recursion stuff to improve string_of_function method *)
 type 'e statement =
   | Return of 'e
   | Assign of (string * 'e)
