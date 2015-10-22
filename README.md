@@ -7,6 +7,8 @@ Running
 
 Run `make` to install dependencies and generate `./main.native`, the main source file. From there you can run `./main.native` and manually enter programs, or you can pipe programs into it with `cat file.js | ./main.native`.
 
+Run `./main.native -o` to enable optimisations, which will refactor the AST of the code you've pass in. Refer to `--help` for details on this and newer features
+
 Running Tests
 =============
 
