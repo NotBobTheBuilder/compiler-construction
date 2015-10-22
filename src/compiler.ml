@@ -22,7 +22,10 @@ let parse' lexbuf =
 
 let parse s = parse' (Lexing.from_string s)
 
-let optimise ast = Optimiser.fold_program ast
+let parse_and_optimise s =  let result = parse s in
+                            match result with
+                              | Parse ast -> Parse (Optimiser.fold_program ast)
+                              | _ -> result
 
 let prettify p =
   String.concat " " (List.map Js.string_of_statement p)

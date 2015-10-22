@@ -42,6 +42,8 @@ let rec fold_expr a = match a with
                         (match (fl, fr) with
                           | (Number n1, Number n2) -> if n1 == n2 then True else False
                           | _ -> Lt (fl, fr))
+  | Call (name, es) ->  let fs = map fold_expr es in
+                        Call (name, fs)
   | _ -> a
 
 and is_truthy c = match c with
