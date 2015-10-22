@@ -32,6 +32,11 @@
 
 %token <string> IDENT
 
+%left EQEQ
+%left LTEQ
+%left GTEQ
+%left LT
+%left GT
 %left ADD
 %left SUB
 %left MUL
