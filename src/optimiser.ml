@@ -42,8 +42,8 @@ let rec fold_expr a = match a with
                         (match (fl, fr) with
                           | (Number n1, Number n2) -> if n1 == n2 then True else False
                           | _ -> Lt (fl, fr))
-  | Call (name, es) ->  let fs = map fold_expr es in
-                        Call (name, fs)
+  | Function (n, ps, b) ->  let fb = fold_statements b in Function (n, ps, fb)
+  | Call (name, es) ->      let fs = map fold_expr es in Call (name, fs)
   | _ -> a
 
 and is_truthy c = match c with
@@ -80,6 +80,10 @@ and fold_statement s = match s with
   | IfElse (c, ts, fs) -> fold_if_else c ts fs
   | Expr e -> [Expr (fold_expr e)]
 
-and fold_statements ss = List.flatten (List.map fold_statement ss)
+and fold_statements ss = match ss with
+  | [] -> []
+  (* drop dead code after return *)
+  | (Return e)::tl -> [Return (fold_expr e)]
+  | hd::tl -> List.append (fold_statement hd) (fold_statements tl)
 
 let fold_program = fold_statements
