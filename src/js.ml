@@ -4,6 +4,9 @@ open List
 type statement =
   | Return of expr
   | Assign of (string * expr)
+  | While of (expr * statement list)
+  | If of (expr * statement list)
+  | IfElse of (expr * statement list * statement list)
   | Expr of expr
 and
 expr =
@@ -19,12 +22,13 @@ expr =
   | Function of (string option * string list * statement list)
   | Call of (string * expr list)
 
-let rec string_of_function name params body =
+let rec string_of_block b = "{ " ^ (String.concat " " (map string_of_statement b)) ^ " }"
+and string_of_function name params body =
   let ps = String.concat ", " params in
-  let b = String.concat " " (map string_of_statement body) in
+  let b = string_of_block body in
   match name with
-  | None ->   "(Function <anonymous> (" ^ ps ^ ") { " ^ b ^ " })"
-  | Some n -> "(Function '" ^ n ^ "' (" ^ ps ^ ") { " ^ b ^ " })"
+  | None ->   "(Function <anonymous> (" ^ ps ^ ") " ^ b ^ ")"
+  | Some n -> "(Function '" ^ n ^ "' (" ^ ps ^ ") " ^ b ^ ")"
 
 and string_of_expr e = match e with
   | Add (lhs, rhs) -> "(Add " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
@@ -40,6 +44,19 @@ and string_of_expr e = match e with
   | Call (name, params) -> "(Call '" ^ name ^ "' with [" ^ (String.concat "," (map string_of_expr params)) ^ "])"
 
 and string_of_statement s = match s with
-  | Return e -> "(Return " ^ (string_of_expr e) ^ ")"
-  | Expr e -> "(Expr " ^ (string_of_expr e) ^ ");"
-  | Assign (id, e) -> "(Assign '" ^ id ^"' " ^ (string_of_expr e) ^ ");"
+  | Return e ->         let exp = string_of_expr e in
+                          "(Return " ^ exp ^ ")"
+  | Assign (id, e) ->   let exp = string_of_expr e in
+                          "(Assign '" ^ id ^"' " ^ exp ^ ");"
+  | While (c, b) ->     let exp = string_of_expr c in
+                        let block = string_of_block b in
+                          "(While (" ^ exp ^") " ^ block ^ ")"
+  | If (c, t) ->        let exp = string_of_expr c in
+                        let trueBlock = string_of_block t in
+                          "(If (" ^ exp ^") " ^ trueBlock ^ ")"
+  | IfElse (c, t, f) -> let exp = string_of_expr c in
+                        let trueBlock = string_of_block t in
+                        let falseBlock = string_of_block f in
+                          "(IfElse (" ^ exp ^") " ^ trueBlock ^ " " ^ falseBlock ^ ")"
+  | Expr e ->           let exp = string_of_expr e in
+                          "(Expr " ^ exp ^ ");"

@@ -27,6 +27,9 @@ rule read =
     | "return"    { RETURN }
     | "true"      { TRUE }
     | "false"     { FALSE }
+    | "if"        { IF }
+    | "else"      { ELSE }
+    | "while"     { WHILE }
     | '('         { BRACKET_OPEN }
     | ')'         { BRACKET_CLOSE }
     | '{'         { BRACE_OPEN }
