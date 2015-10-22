@@ -50,4 +50,5 @@ let testall ts = List.fold_left test (0, 0, 0) ts
 let _ =
   match (testall tests) with
     (succs, fails, errs) ->
-      Printf.eprintf "%d Successes, %d Failures, %d Errors\n" succs fails errs
+      (Printf.eprintf "%d Successes, %d Failures, %d Errors\n" succs fails errs;
+      if fails + errs > 0 then exit 1 else exit 0)

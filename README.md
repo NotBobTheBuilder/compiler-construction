@@ -10,7 +10,7 @@ Run `make` to install dependencies and generate `./main.native`, the main source
 Running Tests
 =============
 
-`make test` builds and runs the tests. for some reason, they only seem to work on ocaml4.0.2 and not earlier (investigating).
+`make test` builds and runs the tests. You can also see some results on the [Travis CI Build Matrix](https://travis-ci.org/NotBobTheBuilder/compiler-construction), which runs the tests on Mac and Linux across various common Ocaml versions.
 
 What's implemented
 ==================
