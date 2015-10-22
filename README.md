@@ -19,6 +19,9 @@ What's implemented
 - Function definitions
 - Function expressions
 - Function calls
+- Flow Control
+- Comparisons
+- Optimisations
 
 A sample program:
 
@@ -33,3 +36,14 @@ A sample program:
     var square = function(x) {
       return mul(x, x);
     };
+    var imperativeCount = function(n) {
+      if (n % 2 == 0) {
+        a();
+      } else {
+        b();
+      }
+      while (n > 0) {
+        alert(n);
+        n = n - 1;
+      }
+    }

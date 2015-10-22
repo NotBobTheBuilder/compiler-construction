@@ -71,6 +71,7 @@ exp:
 statement:
     | RETURN; e = exp; SEMICOLON              { Js.Return e }
     | VAR; e = IDENT; EQ; f = exp; SEMICOLON  { Js.Assign (e, f) }
+    | e = IDENT; EQ; f = exp; SEMICOLON       { Js.Assign (e, f) }
     | w = whileBlock                          { w }
     | i = ifElseBlock                         { i }
     | i = ifBlock                             { i }
