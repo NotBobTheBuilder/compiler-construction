@@ -15,6 +15,11 @@ expr =
   | Mul of (expr * expr)
   | Div of (expr * expr)
   | Mod of (expr * expr)
+  | Lt of (expr * expr)
+  | LtEq of (expr * expr)
+  | Gt of (expr * expr)
+  | GtEq of (expr * expr)
+  | Eq of (expr * expr)
   | True
   | False
   | Ident of string
@@ -23,6 +28,7 @@ expr =
   | Call of (string * expr list)
 
 let rec string_of_block b = "{ " ^ (String.concat " " (map string_of_statement b)) ^ " }"
+
 and string_of_function name params body =
   let ps = String.concat ", " params in
   let b = string_of_block body in
@@ -36,6 +42,11 @@ and string_of_expr e = match e with
   | Mul (lhs, rhs) -> "(Mul " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
   | Div (lhs, rhs) -> "(Div " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
   | Mod (lhs, rhs) -> "(Mod " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
+  | Lt (lhs, rhs) -> "(< " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
+  | LtEq (lhs, rhs) -> "(<= " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
+  | Gt (lhs, rhs) -> "(> " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
+  | GtEq (lhs, rhs) -> "(>= " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
+  | Eq (lhs, rhs) -> "(== " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
   | Ident i -> "(Ident " ^ i ^ ")"
   | Number n -> "(Number " ^ (string_of_int n) ^ ")"
   | True -> "(True)"

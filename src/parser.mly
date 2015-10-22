@@ -5,6 +5,11 @@
 %token MUL
 %token DIV
 %token MOD
+%token LT
+%token LTEQ
+%token GT
+%token GTEQ
+%token EQEQ
 %token EOF
 
 %token TRUE
@@ -50,6 +55,11 @@ exp:
     | e = exp; MUL; f = exp   { Js.Mul (e, f) }
     | e = exp; DIV; f = exp   { Js.Div (e, f) }
     | e = exp; MOD; f = exp   { Js.Mod (e, f) }
+    | e = exp; LT; f = exp    { Js.Lt (e, f) }
+    | e = exp; LTEQ; f = exp  { Js.LtEq (e, f) }
+    | e = exp; GT; f = exp    { Js.Gt (e, f) }
+    | e = exp; GTEQ; f = exp  { Js.GtEq (e, f) }
+    | e = exp; EQEQ; f = exp  { Js.Eq (e, f) }
     | i = IDENT               { Js.Ident i }
     ;
 

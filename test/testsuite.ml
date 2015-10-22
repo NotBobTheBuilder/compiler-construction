@@ -6,10 +6,12 @@ open Printf
 
 open Test_functions
 open Test_operators
+open Test_flow
 
 let tests = concat [
   Test_operators.tests;
   Test_functions.tests;
+  Test_flow.tests;
 ]
 
 let passed (s, f, e) = (s + 1, f, e)

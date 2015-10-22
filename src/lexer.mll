@@ -40,6 +40,11 @@ rule read =
     | '*'         { MUL }
     | '/'         { DIV }
     | '%'         { MOD }
+    | '<'         { LT }
+    | "<="        { LTEQ }
+    | '>'         { GT }
+    | ">="        { GTEQ }
+    | "=="        { EQEQ }
     | ';'         { SEMICOLON }
     | '='         { EQ }
     | int         { NUMBER (int_of_string (Lexing.lexeme lexbuf)) }
