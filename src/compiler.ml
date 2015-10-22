@@ -2,6 +2,7 @@ open Lexing
 open Printf
 open List
 open String
+open Optimiser
 
 type parse_result =
   | Parse of Js.statement list
@@ -21,7 +22,7 @@ let parse' lexbuf =
 
 let parse s = parse' (Lexing.from_string s)
 
-let optimise ast = ast
+let optimise ast = Optimiser.fold_program ast
 
 let prettify p =
   String.concat " " (List.map Js.string_of_statement p)
