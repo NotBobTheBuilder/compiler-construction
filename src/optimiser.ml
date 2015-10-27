@@ -1,7 +1,7 @@
 open List
 open Js
 
-let rec fold_expr a = match a with
+let rec fold_expr = function
   | Add (lhs, rhs) ->   let fl = fold_expr lhs in
                         let fr = fold_expr rhs in
                         (match (fl, fr) with
@@ -44,14 +44,14 @@ let rec fold_expr a = match a with
                           | _ -> Lt (fl, fr))
   | Function (n, ps, b) ->  let fb = fold_statements b in Function (n, ps, fb)
   | Call (name, es) ->      let fs = map fold_expr es in Call (name, fs)
-  | _ -> a
+  | a -> a
 
-and is_truthy c = match c with
+and is_truthy = function
   | True -> true
   | Number n -> n > 0
   | _ -> false
 
-and is_falsy c = match c with
+and is_falsy = function
   | False -> true
   | Number 0 -> true
   | _ -> false
@@ -72,7 +72,7 @@ and fold_if_else c ts fs =  let fc = fold_expr c in
                             else if is_truthy fc then fts
                             else [IfElse (fc, fts, ffs)]
 
-and fold_statement s = match s with
+and fold_statement = function
   | Return e -> [Return (fold_expr e)]
   | Assign (i, e) -> [Assign (i, fold_expr e)]
   | While (c, ss) -> fold_while c ss
@@ -80,7 +80,7 @@ and fold_statement s = match s with
   | IfElse (c, ts, fs) -> fold_if_else c ts fs
   | Expr e -> [Expr (fold_expr e)]
 
-and fold_statements ss = match ss with
+and fold_statements = function
   | [] -> []
   (* drop dead code after return *)
   | (Return e)::tl -> [Return (fold_expr e)]
