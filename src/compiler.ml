@@ -3,6 +3,7 @@ open Printf
 open List
 open String
 open Optimiser
+open Asm
 
 type parse_result =
   | Parse of Js.statement list
@@ -32,3 +33,5 @@ let prettify p =
 
 let prettyPrint p =
   List.iter print_endline (List.map Js.string_of_statement p)
+
+let to_x86 p = print_endline (Asm.compile p)

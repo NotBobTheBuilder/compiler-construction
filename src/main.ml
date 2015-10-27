@@ -3,8 +3,10 @@ open List
 open String
 
 let optimisation = ref false
+let ast_only = ref false
 let param_specs = [
-  ("-o", Arg.Set optimisation, "Enable Optimisation")
+  ("-o", Arg.Set optimisation, "Enable Optimisation");
+  ("--ast", Arg.Set ast_only , "Just build & print the AST");
 ]
 let drop x = ()
 let usage_msg = "main.native [-o]"
@@ -25,6 +27,7 @@ let compiler_chain =  let input = load_from_stdio in
 
 let _ =
   match compiler_chain with
-    | Compiler.Parse ss -> Compiler.prettyPrint ss
+    | Compiler.Parse ss -> if !ast_only then Compiler.prettyPrint ss
+                                        else Compiler.to_x86 ss
     | Compiler.SyntaxError msg -> print_endline ("Syntax Error: " ^ msg)
     | Compiler.ParseError msg -> print_endline ("Parse Error: " ^ msg)
