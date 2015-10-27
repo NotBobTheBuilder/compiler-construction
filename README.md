@@ -7,10 +7,12 @@ Running
 
 Run `make` to install dependencies and generate `./main.native`, the main source file. From there you can run `./main.native` and manually enter programs, or you can pipe programs into it with `cat file.js | ./main.native`.
 
+Run `./main.native -o` to enable optimisations, which will refactor the AST of the code you've pass in. Refer to `--help` for details on this and newer features
+
 Running Tests
 =============
 
-`make test` builds and runs the tests. for some reason, they only seem to work on ocaml4.0.2 and not earlier (investigating).
+`make test` builds and runs the tests. You can also see some results on the [Travis CI Build Matrix](https://travis-ci.org/NotBobTheBuilder/compiler-construction), which runs the tests on Mac and Linux across various common Ocaml versions.
 
 What's implemented
 ==================
@@ -19,6 +21,9 @@ What's implemented
 - Function definitions
 - Function expressions
 - Function calls
+- Flow Control
+- Comparisons
+- Optimisations
 
 A sample program:
 
@@ -33,3 +38,14 @@ A sample program:
     var square = function(x) {
       return mul(x, x);
     };
+    var imperativeCount = function(n) {
+      if (n % 2 == 0) {
+        a();
+      } else {
+        b();
+      }
+      while (n > 0) {
+        alert(n);
+        n = n - 1;
+      }
+    }

@@ -5,6 +5,11 @@
 %token MUL
 %token DIV
 %token MOD
+%token LT
+%token LTEQ
+%token GT
+%token GTEQ
+%token EQEQ
 %token EOF
 
 %token TRUE
@@ -16,6 +21,9 @@
 
 %token FUNCTION
 %token RETURN
+%token IF
+%token ELSE
+%token WHILE
 %token BRACKET_OPEN
 %token BRACKET_CLOSE
 %token COMMA
@@ -24,13 +32,18 @@
 
 %token <string> IDENT
 
+%left EQEQ
+%left LTEQ
+%left GTEQ
+%left LT
+%left GT
 %left ADD
 %left SUB
 %left MUL
 %left DIV
 %left MOD
 
-%start <Js.expr Js.statement list> top
+%start <Js.statement list> top
 %%
 top:
     | el = list(statement); EOF { el }
@@ -47,25 +60,60 @@ exp:
     | e = exp; MUL; f = exp   { Js.Mul (e, f) }
     | e = exp; DIV; f = exp   { Js.Div (e, f) }
     | e = exp; MOD; f = exp   { Js.Mod (e, f) }
+    | e = exp; LT; f = exp    { Js.Lt (e, f) }
+    | e = exp; LTEQ; f = exp  { Js.LtEq (e, f) }
+    | e = exp; GT; f = exp    { Js.Gt (e, f) }
+    | e = exp; GTEQ; f = exp  { Js.GtEq (e, f) }
+    | e = exp; EQEQ; f = exp  { Js.Eq (e, f) }
     | i = IDENT               { Js.Ident i }
-    ;
-
-funcCall:
-    | i = IDENT; BRACKET_OPEN; ps = separated_list(COMMA, exp); BRACKET_CLOSE { Js.Call (i, ps )}
     ;
 
 statement:
     | RETURN; e = exp; SEMICOLON              { Js.Return e }
     | VAR; e = IDENT; EQ; f = exp; SEMICOLON  { Js.Assign (e, f) }
+    | e = IDENT; EQ; f = exp; SEMICOLON       { Js.Assign (e, f) }
+    | w = whileBlock                          { w }
+    | i = ifElseBlock                         { i }
+    | i = ifBlock                             { i }
     | e = exp; SEMICOLON                      { Js.Expr e }
     ;
 
+block:
+    | BRACE_OPEN; b = list(statement); BRACE_CLOSE
+      { b }
+    ;
+
+bracketed(X):
+    | BRACKET_OPEN; x = X; BRACKET_CLOSE
+      { x }
+    ;
+
+whileBlock:
+    | WHILE; condition = bracketed(exp); block = block
+      { Js.While (condition, block) }
+    ;
+
+ifBlock:
+    | IF; condition = bracketed(exp); block = block
+      { Js.If (condition, block) }
+    ;
+
+ifElseBlock:
+    | i = ifBlock; ELSE; f = block
+      { match i with | Js.If (e, t) -> Js.IfElse (e, t, f) }
+    ;
+
 func:
-    | FUNCTION; ps = paramList; body = functionBody { Js.Function (None, ps, body )}
-    | FUNCTION; i = IDENT; ps = paramList; body = functionBody { Js.Function (Some(i), ps, body )}
+    | FUNCTION; i = option(IDENT); ps = paramList; body = block
+      { Js.Function (i, ps, body )}
+    ;
+
+funcCall:
+    | i = IDENT; ps = bracketed(separated_list(COMMA, exp))
+      { Js.Call (i, ps)}
+    ;
 
 paramList:
-    | BRACKET_OPEN; ps = separated_list(COMMA, IDENT); BRACKET_CLOSE { ps }
-
-functionBody:
-    | BRACE_OPEN; ss = list(statement); BRACE_CLOSE { ss }
+    | ps = bracketed(separated_list(COMMA, IDENT))
+      { ps }
+    ;
