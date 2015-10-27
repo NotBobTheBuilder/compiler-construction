@@ -19,8 +19,8 @@ let tests = concat [
 let passed (s, f, e) = (s + 1, f, e)
 
 let pass_if_equal (s, f, e) got expected =
-  let p1 = Compiler.prettify got in
-  let p2 = Compiler.prettify expected in
+  let p1 = Compiler.to_ast got in
+  let p2 = Compiler.to_ast expected in
   if 0 == compare p1 p2 then (s + 1, f, e)
   else (s, f + 1, e)
 

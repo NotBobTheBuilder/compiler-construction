@@ -28,10 +28,5 @@ let parse_and_optimise s =  let result = parse s in
                               | Parse ast -> Parse (Optimiser.fold_program ast)
                               | _ -> result
 
-let prettify p =
-  String.concat " " (List.map Js.string_of_statement p)
-
-let prettyPrint p =
-  List.iter print_endline (List.map Js.string_of_statement p)
-
-let to_x86 p = print_endline (Asm.compile p)
+let to_ast p = String.concat " " (List.map Js.string_of_statement p)
+let to_x86 = Asm.compile
