@@ -24,10 +24,9 @@ let asm_bin_opp o = "
 \t" ^ o ^ " %rdi, %rsi
 \tpush %rsi\n"
 
-let asm_add = asm_bin_opp "add"
-let asm_sub = asm_bin_opp "sub"
-let asm_mul = asm_bin_opp "imul"
-let asm_div = asm_bin_opp "div"
+let asm_add = asm_bin_opp "addq"
+let asm_sub = asm_bin_opp "subq"
+let asm_mul = asm_bin_opp "imulq"
 
 let asm_push n = "\tpush $" ^ (string_of_int n) ^ "\n"
 
@@ -37,7 +36,6 @@ and asm_of_expr = function
   | Mul (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_mul
   | Add (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_add
   | Sub (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_sub
-  | Div (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_div
   | Number n -> asm_push n
   | _ -> ""
 
