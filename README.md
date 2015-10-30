@@ -59,3 +59,6 @@ Currently compiles all expressions and some (but not all) variables - something 
   - (But that bit of code didn't work so I deleted it, oops)
 - Scopes are built during parsing and are only currently expanded by function parameters and `var x=..`
 - Expression codegen is quite simple really, see `Asm.ml`
+- Variables *sort of* work. Programs with 1 or 2 variables seem to be ok. This is blind luck because the stack is only partially working
+  - When I try to allocate memory in the stack for variables I get segfaults
+  - So I choose not to and pray instead 
