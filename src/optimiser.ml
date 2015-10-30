@@ -42,7 +42,7 @@ let rec fold_expr = function
                         (match (fl, fr) with
                           | (Number n1, Number n2) -> if n1 == n2 then True else False
                           | _ -> Lt (fl, fr))
-  | Function (n, ps, b) ->  let fb = fold_statements b in Function (n, ps, fb)
+  | Function (n, ps, scope, b) ->  let fb = fold_statements b in Function (n, ps, scope, fb)
   | Call (name, es) ->      let fs = map fold_expr es in Call (name, fs)
   | a -> a
 

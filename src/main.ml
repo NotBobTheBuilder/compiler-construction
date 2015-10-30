@@ -55,6 +55,6 @@ let _ = Arg.parse param_specs set_input_file usage_msg
 
 let _ =
   match !parse_function (!input_function ()) with
-    | Compiler.Parse ss -> !output_function (!compile_function ss)
+    | Compiler.Parse p -> !output_function (!compile_function p)
     | Compiler.SyntaxError msg -> prerr_endline ("Syntax Error: " ^ msg)
     | Compiler.ParseError msg -> prerr_endline ("Parse Error: " ^ msg)

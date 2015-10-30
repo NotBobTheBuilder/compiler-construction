@@ -4,9 +4,10 @@ open List
 open String
 open Optimiser
 open Asm
+open Js
 
 type parse_result =
-  | Parse of Js.statement list
+  | Parse of program
   | SyntaxError of string
   | ParseError of string
 
@@ -25,8 +26,8 @@ let parse s = parse' (Lexing.from_string s)
 
 let parse_and_optimise s =  let result = parse s in
                             match result with
-                              | Parse ast -> Parse (Optimiser.fold_program ast)
+                              | Parse (scope, ast) -> Parse (scope, Optimiser.fold_program ast)
                               | _ -> result
 
-let to_ast p = String.concat " " (List.map Js.string_of_statement p)
+let to_ast (scope, p) = String.concat " " (List.map Js.string_of_statement p)
 let to_x86 = Asm.compile

@@ -1,15 +1,20 @@
 open String
 open List
+module StringSet = Set.Make(String)
 
-type statement =
+type params = string list
+and fname = string option
+and scope = string list
+and block = statement list
+and program = (scope * block)
+and statement =
   | Return of expr
   | Assign of (string * expr)
-  | While of (expr * statement list)
-  | If of (expr * statement list)
-  | IfElse of (expr * statement list * statement list)
+  | While of (expr * block)
+  | If of (expr * block)
+  | IfElse of (expr * block * block)
   | Expr of expr
-and
-expr =
+and expr =
   | Add of (expr * expr)
   | Sub of (expr * expr)
   | Mul of (expr * expr)
@@ -24,7 +29,7 @@ expr =
   | False
   | Ident of string
   | Number of int
-  | Function of (string option * string list * statement list)
+  | Function of (fname * params * scope * block)
   | Call of (string * expr list)
 
 let rec string_of_block b = "{ " ^ (String.concat " " (map string_of_statement b)) ^ " }"
@@ -51,7 +56,7 @@ and string_of_expr e = match e with
   | Number n -> "(Number " ^ (string_of_int n) ^ ")"
   | True -> "(True)"
   | False -> "(False)"
-  | Function (name, params, body) -> string_of_function name params body
+  | Function (name, params, scope, body) -> string_of_function name params body
   | Call (name, params) -> "(Call '" ^ name ^ "' with [" ^ (String.concat "," (map string_of_expr params)) ^ "])"
 
 and string_of_statement s = match s with
@@ -71,3 +76,12 @@ and string_of_statement s = match s with
                           "(IfElse (" ^ exp ^") " ^ trueBlock ^ " " ^ falseBlock ^ ")"
   | Expr e ->           let exp = string_of_expr e in
                           "(Expr " ^ exp ^ ");"
+
+
+let scope_builder init b = StringSet.elements (List.fold_left (fun vars v -> match v with
+  | Assign (id, expr) -> StringSet.add id vars
+  | _ -> vars
+  ) init b)
+
+let program_scope = scope_builder StringSet.empty
+let function_scope ps = scope_builder (StringSet.of_list ps)

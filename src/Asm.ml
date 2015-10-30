@@ -2,6 +2,8 @@ open Js
 open String
 open List
 
+exception Variable_Not_In_Scope
+
 let asm_prefix = "
 \t.section    __TEXT,__cstring,cstring_literals
 format:
@@ -9,36 +11,74 @@ format:
 \t.section __TEXT,__text,regular,pure_instructions
 \t.globl _main
 _main:
-\tpush    $0\n"
+\tpush    $0
+"
+
+let alloc_scope s = "
+"
+
+let free_scope s = "
+"
 
 let asm_suffix = "
 \tlea format(%rip), %rdi
 \tpop %rsi
 \tcall _printf
 \tmov $0, %rdi
-\tcall _exit  "
+\tcall _exit
+"
 
 let asm_bin_opp o = "
 \tpop %rdi
 \tpop %rsi
 \t" ^ o ^ " %rdi, %rsi
-\tpush %rsi\n"
+\tpush %rsi
+"
 
 let asm_add = asm_bin_opp "addq"
 let asm_sub = asm_bin_opp "subq"
 let asm_mul = asm_bin_opp "imulq"
 
-let asm_push n = "\tpush $" ^ (string_of_int n) ^ "\n"
+let asm_push n = "
+\tpush $" ^ (string_of_int n) ^ "
+"
 
-let rec asm_of_statement = function
-  | Expr e -> asm_of_expr e
-and asm_of_expr = function
-  | Mul (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_mul
-  | Add (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_add
-  | Sub (a, b) -> (asm_of_expr a) ^ (asm_of_expr b) ^ asm_sub
+let asm_set_var o = "
+\tpop %rsi
+\tmov %rsi, " ^ o ^ "(%rbp)
+"
+
+let asm_get_var o = "
+\tmov " ^ o ^ "(%rbp), %rsi
+\tpush %rsi
+"
+
+let rec index e = function
+  | [] -> None
+  | hd::tl -> if 0 == compare hd e  then Some 1
+                          else (match index e tl with
+                                | None -> None
+                                | Some x -> Some (x+1))
+
+let rec offset scope id = match index id scope with
+  | None -> raise Variable_Not_In_Scope
+  | Some o -> string_of_int (-4*o)
+
+let rec asm_of_statement scope = function
+  | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
+  | Expr e -> asm_of_expr scope e
+and asm_of_expr scope = function
+  | Mul (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_mul
+  | Add (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_add
+  | Sub (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_sub
   | Number n -> asm_push n
+  | Ident i -> get scope i
   | _ -> ""
+and get scope id = asm_get_var (offset scope id)
+and assign scope id = asm_set_var (offset scope id)
 
-let compile statements = asm_prefix
-  ^ (String.concat " " (List.map asm_of_statement statements))
+let compile (scope, statements) = asm_prefix
+  ^ alloc_scope (length scope)
+  ^ (String.concat " " (List.map (asm_of_statement scope) statements))
+  ^ free_scope (length scope)
   ^ asm_suffix

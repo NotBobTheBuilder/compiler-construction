@@ -6,16 +6,27 @@ format:
 	.globl _main
 _main:
 	push    $0
-	push $800
-	push $2
+
+
+	push $1
+
+	push $3
 
 	pop %rdi
 	pop %rsi
-	idivq %rsi, %rdi, %rsi
+	addq %rdi, %rsi
 	push %rsi
+
+	push $5
+
+	pop %rdi
+	pop %rsi
+	addq %rdi, %rsi
+	push %rsi
+
 
 	lea format(%rip), %rdi
 	pop %rsi
 	call _printf
 	mov $0, %rdi
-	call _exit  
+	call _exit
