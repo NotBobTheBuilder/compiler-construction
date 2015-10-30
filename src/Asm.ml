@@ -13,6 +13,16 @@ format:
 _main:
 \tpush    $0
 "
+(* These don't seem to work - segfaults :( *)
+let asm_alloc s = "
+\tpush %rbp
+\tsub %rsp," ^ (string_of_int s) ^"
+"
+
+let asm_free = "
+\tmov %rsp, %rbp
+\tpop %rbp
+"
 
 let asm_suffix = "
 \tlea format(%rip), %rdi
