@@ -52,6 +52,8 @@ A sample program:
 
 # Assembly Compilation
 
+## TL;DR: Run `make sample` to build and run the file `something.js`
+
 Currently compiles all expressions and some (but not all) variables - something weird going on with the stack.
 
 - Scopes are now associated with functions and the program. A scopes is curerntly just a list of variable names
@@ -61,4 +63,4 @@ Currently compiles all expressions and some (but not all) variables - something 
 - Expression codegen is quite simple really, see `Asm.ml`
 - Variables *sort of* work. Programs with 1 or 2 variables seem to be ok. This is blind luck because the stack is only partially working
   - When I try to allocate memory in the stack for variables I get segfaults
-  - So I choose not to and pray instead 
+  - So I choose not to and pray instead
