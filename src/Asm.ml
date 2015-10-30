@@ -14,19 +14,12 @@ _main:
 \tpush    $0
 "
 
-let alloc_scope s = "
-"
-
-let free_scope s = "
-"
-
 let asm_suffix = "
 \tlea format(%rip), %rdi
 \tpop %rsi
 \tcall _printf
 \tmov $0, %rdi
-\tcall _exit
-"
+\tcall _exit  "
 
 let asm_bin_opp o = "
 \tpop %rdi
@@ -78,7 +71,5 @@ and get scope id = asm_get_var (offset scope id)
 and assign scope id = asm_set_var (offset scope id)
 
 let compile (scope, statements) = asm_prefix
-  ^ alloc_scope (length scope)
   ^ (String.concat " " (List.map (asm_of_statement scope) statements))
-  ^ free_scope (length scope)
   ^ asm_suffix
