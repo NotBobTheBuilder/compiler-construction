@@ -47,11 +47,13 @@ let set_ast_only _ = compile_function := Compiler.to_ast
 let param_specs = [
   ("-O", Arg.Unit set_optimisation, "Enable Optimisation");
   ("-o", Arg.String set_output_file, "Specify output file");
+  ("-i", Arg.String set_input_file, "Specify input file");
   ("--ast", Arg.Unit set_ast_only , "Just build & print the AST");
 ]
 
+let drop x = ()
 let usage_msg = "main.native [-o]"
-let _ = Arg.parse param_specs set_input_file usage_msg
+let _ = Arg.parse param_specs drop usage_msg
 
 let _ =
   match !parse_function (!input_function ()) with

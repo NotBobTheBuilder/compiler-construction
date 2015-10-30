@@ -49,3 +49,13 @@ A sample program:
         n = n - 1;
       }
     }
+
+# Assembly Compilation
+
+Currently compiles all expressions and some (but not all) variables - something weird going on with the stack.
+
+- Scopes are now associated with functions and the program. A scopes is curerntly just a list of variable names
+  - The size of this list should determine how much space is allocated on the stack.
+  - (But that bit of code didn't work so I deleted it, oops)
+- Scopes are built during parsing and are only currently expanded by function parameters and `var x=..`
+- Expression codegen is quite simple really, see `Asm.ml`
