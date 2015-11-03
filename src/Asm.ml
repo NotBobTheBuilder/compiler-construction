@@ -11,31 +11,30 @@ format:
 \t.section __TEXT,__text,regular,pure_instructions
 \t.globl _main
 _main:
-\tpush    $0
+\tpushq    $0
 "
 (* These don't seem to work - segfaults :( *)
-let asm_alloc s = "
-\tpush %rbp
-\tsub %rsp," ^ (string_of_int s) ^"
+let asm_alloc s = let size = string_of_int (8*(1+(List.length s))) in "
+\tsubq $" ^ size ^", %rsp
 "
 
-let asm_free = "
-\tmov %rsp, %rbp
-\tpop %rbp
+let asm_free s = let size = string_of_int (8*(1+(List.length s))) in "
+\tpopq %rsi
+\taddq $" ^ size ^", %rsp
 "
 
-let asm_suffix = "
-\tlea format(%rip), %rdi
-\tpop %rsi
+let asm_exit_printing_rsi = "
+\tleaq format(%rip), %rdi
 \tcall _printf
-\tmov $0, %rdi
-\tcall _exit  "
+\tmovq $0, %rdi
+\tcall _exit
+"
 
 let asm_bin_opp o = "
-\tpop %rdi
-\tpop %rsi
+\tpopq %rdi
+\tpopq %rsi
 \t" ^ o ^ " %rdi, %rsi
-\tpush %rsi
+\tpushq %rsi
 "
 
 let asm_add = asm_bin_opp "addq"
@@ -43,17 +42,17 @@ let asm_sub = asm_bin_opp "subq"
 let asm_mul = asm_bin_opp "imulq"
 
 let asm_push n = "
-\tpush $" ^ (string_of_int n) ^ "
+\tpushq $" ^ (string_of_int n) ^ "
 "
 
 let asm_set_var o = "
-\tpop %rsi
-\tmov %rsi, " ^ o ^ "(%rbp)
+\tpopq %rsi
+\tmovq %rsi, " ^ o ^ "(%rbp)
 "
 
 let asm_get_var o = "
-\tmov " ^ o ^ "(%rbp), %rsi
-\tpush %rsi
+\tmovq " ^ o ^ "(%rbp), %rsi
+\tpushq %rsi
 "
 
 let rec index e = function
@@ -65,7 +64,7 @@ let rec index e = function
 
 let rec offset scope id = match index id scope with
   | None -> raise Variable_Not_In_Scope
-  | Some o -> string_of_int (-4*o)
+  | Some o -> string_of_int (-8*o)
 
 let rec asm_of_statement scope = function
   | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
@@ -81,5 +80,7 @@ and get scope id = asm_get_var (offset scope id)
 and assign scope id = asm_set_var (offset scope id)
 
 let compile (scope, statements) = asm_prefix
+  ^ asm_alloc scope
   ^ (String.concat " " (List.map (asm_of_statement scope) statements))
-  ^ asm_suffix
+  ^ asm_free scope
+  ^ asm_exit_printing_rsi
