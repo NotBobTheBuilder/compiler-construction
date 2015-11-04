@@ -43,10 +43,10 @@
 %left DIV
 %left MOD
 
-%start <Js.statement list> top
+%start <Js.program> top
 %%
 top:
-    | el = list(statement); EOF { el }
+    | el = list(statement); EOF { (Js.program_scope el, el) }
     ;
 
 exp:
@@ -105,7 +105,7 @@ ifElseBlock:
 
 func:
     | FUNCTION; i = option(IDENT); ps = paramList; body = block
-      { Js.Function (i, ps, body )}
+      { Js.Function (i, ps, Js.function_scope ps body, body )}
     ;
 
 funcCall:

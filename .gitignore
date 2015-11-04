@@ -2,3 +2,5 @@ _build/
 
 testsuite.native
 main.native
+out.asm
+a.out

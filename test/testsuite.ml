@@ -19,8 +19,8 @@ let tests = concat [
 let passed (s, f, e) = (s + 1, f, e)
 
 let pass_if_equal (s, f, e) got expected =
-  let p1 = Compiler.prettify got in
-  let p2 = Compiler.prettify expected in
+  let p1 = Compiler.to_ast got in
+  let p2 = Compiler.to_ast expected in
   if 0 == compare p1 p2 then (s + 1, f, e)
   else (s, f + 1, e)
 
@@ -33,10 +33,10 @@ let error (s, f, e) err =
 let test tally (input, expected) =
   let parsed = (Compiler.parse input) in
   match (parsed, expected) with
-    | (Parse p, OK) -> passed tally
-    | (Parse p, OPT_EQ b) -> (
+    | (Parse (s, p), OK) -> passed tally
+    | (Parse (s, p), OPT_EQ b) -> (
         match Compiler.parse_and_optimise b with
-          | Parse p2 -> pass_if_equal tally (Optimiser.fold_program p) p2
+          | Parse (s2, p2) -> pass_if_equal tally (s, (Optimiser.fold_program p)) (s2, p2)
         )
     | (SyntaxError _, SE) -> passed tally
     | (ParseError _, PE) -> passed tally

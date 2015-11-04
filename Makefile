@@ -1,4 +1,4 @@
-.PHONY: build test deps clean compiletest
+.PHONY: build test deps clean compiletest sample
 .DEFAULT_GOAL := build
 clean:
 	rm -rf _build
@@ -13,3 +13,7 @@ compiletest:
 build: deps compile
 test: deps compiletest
 	./testsuite.native
+sample: build
+	./main.native -i something.js
+	cc out.asm
+	./a.out

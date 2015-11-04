@@ -49,3 +49,29 @@ A sample program:
         n = n - 1;
       }
     }
+
+# Assembly Compilation
+
+## TL;DR: Run `make sample` to build and run the file `something.js`
+
+Currently compiles all expressions and some (but not all) variables - something weird going on with the stack.
+
+- Scopes are now associated with functions and the program. A scopes is curerntly just a list of variable names
+  - The size of this list should determine how much space is allocated on the stack.
+  - (But that bit of code didn't work so I deleted it, oops)
+- Scopes are built during parsing and are only currently expanded by function parameters and `var x=..`
+- Expression codegen is quite simple really, see `Asm.ml`
+- Variables *sort of* work. Programs with 1 or 2 variables seem to be ok. This is blind luck because the stack is only partially working
+  - When I try to allocate memory in the stack for variables I get segfaults
+  - So I choose not to and pray instead
+
+## Benchmarks
+
+| Program  | Node     | Mine     |
+|----------|----------|----------|
+| 100.js   | 0m0.217s | 0m0.004s |
+| 1000.js  | 0m0.074s | 0m0.005s |
+| 1010.js  | 0m0.005s | 0m0.005s |
+| 50.js    | 0m0.075s | 0m0.004s |
+| 50.js    | 0m0.075s | 0m0.004s |
+| 80100.js | 0m0.073s | 0m0.004s |
