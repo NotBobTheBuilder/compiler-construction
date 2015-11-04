@@ -83,5 +83,7 @@ let scope_builder init b = StringSet.elements (List.fold_left (fun vars v -> mat
   | _ -> vars
   ) init b)
 
+let set_of_list = List.fold_left (fun set e -> StringSet.add e set) StringSet.empty
+
 let program_scope = scope_builder StringSet.empty
-let function_scope ps = scope_builder (StringSet.of_list ps)
+let function_scope ps = scope_builder (set_of_list ps)
