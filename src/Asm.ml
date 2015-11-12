@@ -4,6 +4,9 @@ open List
 
 exception Variable_Not_In_Scope
 
+let count = ref 0
+let label _ = count := !count+1; "label"^(string_of_int !count)
+
 let asm_prefix = "
 \t.section    __TEXT,__cstring,cstring_literals
 format:
@@ -53,6 +56,12 @@ let asm_get_var o = "
 \tpushq %rsi
 "
 
+let asm_branch_eq0 l = "
+\tpopq %rsi
+\tcmp $0, %rsi
+\tje "^ l ^"
+"
+
 let rec index e = function
   | [] -> None
   | hd::tl -> if 0 == compare hd e  then Some 1
@@ -65,8 +74,14 @@ let rec offset scope id = match index id scope with
   | Some o -> string_of_int (-8*o)
 
 let rec asm_of_statement scope = function
+  | Declare (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
   | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
   | Expr e -> asm_of_expr scope e
+  | If (c, b) -> (asm_of_expr scope c) ^ (asm_of_if scope b)
+and asm_of_if scope block =
+  let label_end = label () in (asm_branch_eq0 label_end)
+  ^ asm_of_block scope block
+  ^ label_end ^ ":\n"
 and asm_of_expr scope = function
   | Mul (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_mul
   | Add (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_add
@@ -74,11 +89,12 @@ and asm_of_expr scope = function
   | Number n -> asm_push n
   | Ident i -> get scope i
   | _ -> ""
+and asm_of_block scope statements = (String.concat "\n" (List.map (asm_of_statement scope) statements))
 and get scope id = asm_get_var (offset scope id)
 and assign scope id = asm_set_var (offset scope id)
 
 let compile (scope, statements) = asm_prefix
   ^ asm_alloc scope
-  ^ (String.concat " " (List.map (asm_of_statement scope) statements))
+  ^ asm_of_block scope statements
   ^ asm_free scope
   ^ asm_exit_printing_rsi
