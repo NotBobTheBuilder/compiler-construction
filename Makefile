@@ -11,7 +11,7 @@ compile:
 compiletest:
 	ocamlbuild -use-menhir -use-ocamlfind -I src/ -I test/ ./test/testsuite.native
 build: deps compile
-test: deps compiletest
+test: deps compile compiletest
 	./testsuite.native
 sample: build
 	./main.native -i something.js

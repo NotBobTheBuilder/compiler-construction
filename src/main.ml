@@ -54,7 +54,7 @@ let parse_function = ref Compiler.parse
 let set_optimisation _ = parse_function := Compiler.parse_and_optimise
 
 let compile_function = ref Compiler.to_x86
-let set_ast_only _ = compile_function := Compiler.to_ast
+let set_ast_only _ = compile_function := Compiler.to_ast; set_no_execution (); set_output_file "-"
 
 let param_specs = [
   ("-O", Arg.Unit set_optimisation, "Enable Optimisation");

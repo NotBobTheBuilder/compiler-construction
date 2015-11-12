@@ -1,5 +1,7 @@
 open List
 open Js
+open String
+module StringMap = Map.Make(String)
 
 let is_var = function
   | Declare _ -> true
@@ -47,7 +49,7 @@ let rec fold_expr = function
                           | (Number n1, Number n2) -> if n1 == n2 then True else False
                           | _ -> Lt (fl, fr))
   | Function (n, ps, scope, b) ->  let (_, fb) = fold_block scope b in Function (n, ps, scope, fb)
-  | Call (name, es) ->      let fs = map fold_expr es in Call (name, fs)
+  | Call (name, es) ->      let fs = List.map fold_expr es in Call (name, fs)
   | a -> a
 
 and is_truthy = function
@@ -79,6 +81,7 @@ and fold_if_else scope c ts fs =  let fc = fold_expr c in
 and fold_statement scope = function
   | Return e -> [Return (fold_expr e)]
   | Assign (i, e) -> [Assign (i, fold_expr e)]
+  | Declare (i, e) -> [Declare (i, fold_expr e)]
   | While (c, ss) -> fold_while scope c ss
   | If (c, ts) -> fold_if scope c ts
   | IfElse (c, ts, fs) -> fold_if_else scope c ts fs
@@ -90,6 +93,13 @@ and fold_block' scope statements = match statements with
   | (Return e)::tl -> (scope, [Return (fold_expr e)])
   | hd::tl -> let (_, ss) = (fold_block' scope tl) in (scope, List.append (fold_statement scope hd) ss)
 and fold_block scope statements = let (s, ss) = (hoist_vars scope statements) in fold_block' s ss
-and hoist_vars scope ss = let (vars, fs) = List.partition is_var ss in (scope, concat [vars; fs])
+and hoist_vars scope ss =
+  let (vars, fs) = List.partition is_var ss in
+  let names = List.fold_left (fun acc var -> match var with
+     | Declare (i, exp) -> i::acc
+     | _ -> acc
+  ) [] vars in
+  let scope = List.fold_left (fun acc var -> StringMap.add var None acc) StringMap.empty names in
+  (scope, List.concat [vars; fs])
 
 let fold_program = fold_block

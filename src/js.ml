@@ -1,10 +1,10 @@
 open String
 open List
-module StringSet = Set.Make(String)
+module StringMap = Map.Make(String)
 
 type params = string list
 and fname = string option
-and scope = string list
+and scope = int option StringMap.t
 and block = statement list
 and program = (scope * block)
 and statement =
@@ -33,7 +33,7 @@ and expr =
   | Function of (fname * params * scope * block)
   | Call of (string * expr list)
 
-let rec string_of_block b = "{ " ^ (String.concat " " (map string_of_statement b)) ^ " }"
+let rec string_of_block b = "{ " ^ (String.concat " " (List.map string_of_statement b)) ^ " }"
 
 and string_of_function name params body =
   let ps = String.concat ", " params in
@@ -81,12 +81,12 @@ and string_of_statement s = match s with
                           "(Expr " ^ exp ^ ");"
 
 
-let scope_builder init b = StringSet.elements (List.fold_left (fun vars v -> match v with
-  | Assign (id, expr) -> StringSet.add id vars
-  | _ -> vars
-  ) init b)
+let scope_builder initial_scope statements = List.fold_left (fun scope v -> match v with
+  | Declare (id, expr) -> StringMap.add id None scope
+  | _ -> scope
+  ) initial_scope statements
 
-let set_of_list = List.fold_left (fun set e -> StringSet.add e set) StringSet.empty
+let scope_of_parameters = List.fold_left (fun scope e -> StringMap.add e None scope) StringMap.empty
 
-let program_scope = scope_builder StringSet.empty
-let function_scope ps = scope_builder (set_of_list ps)
+let program_scope = scope_builder StringMap.empty
+let function_scope ps = scope_builder (scope_of_parameters ps)
