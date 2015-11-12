@@ -41,7 +41,8 @@ let parser_test tally (input, expected) =
     | (Parse (s, p), OK) -> passed tally
     | (Parse (s, p), OPT_EQ b) -> (
         match Compiler.parse_and_optimise b with
-          | Parse (s2, p2) -> pass_if_equal tally (s, (Optimiser.fold_program p)) (s2, p2)
+          | Parse (s2, p2) -> let (_, ast) = (Optimiser.fold_program s p) in
+                              pass_if_equal tally (s, ast) (s2, p2)
         )
     | (SyntaxError _, SE) -> passed tally
     | (ParseError _, PE) -> passed tally
