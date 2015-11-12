@@ -9,6 +9,7 @@ and block = statement list
 and program = (scope * block)
 and statement =
   | Return of expr
+  | Declare of (string * expr)
   | Assign of (string * expr)
   | While of (expr * block)
   | If of (expr * block)
@@ -62,6 +63,8 @@ and string_of_expr e = match e with
 and string_of_statement s = match s with
   | Return e ->         let exp = string_of_expr e in
                           "(Return " ^ exp ^ ")"
+  | Declare (id, e) ->   let exp = string_of_expr e in
+                          "(Declare '" ^ id ^"' " ^ exp ^ ");"
   | Assign (id, e) ->   let exp = string_of_expr e in
                           "(Assign '" ^ id ^"' " ^ exp ^ ");"
   | While (c, b) ->     let exp = string_of_expr c in

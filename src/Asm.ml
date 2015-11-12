@@ -24,9 +24,7 @@ let asm_free s = let size = string_of_int (8*(1+(List.length s))) in "
 "
 
 let asm_exit_printing_rsi = "
-\tleaq format(%rip), %rdi
-\tcall _printf
-\tmovq $0, %rdi
+\tmovq %rsi, %rdi
 \tcall _exit
 "
 

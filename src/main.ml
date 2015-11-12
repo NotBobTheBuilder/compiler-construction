@@ -2,6 +2,7 @@ open Arg
 open List
 open String
 open Printf
+open Sys
 
 let write_to_file fname s =
   let oc = open_out fname in
@@ -32,11 +33,19 @@ let input_function = ref load_from_stdio
 let set_input_file = function
   | "-" -> input_function := load_from_stdio
   | fname -> input_function := (read_from_file fname)
+let set_input_cli s = input_function := (fun () -> s)
 
-let output_function = ref (write_to_file "out.asm")
+let output_filename = ref "out.asm"
+
+let output_function = ref (write_to_file !output_filename)
 let set_output_file = function
   | "-" -> output_function := print_endline
-  | fname -> output_function := (write_to_file fname)
+  | fname -> (
+    output_filename := fname;
+    output_function := (write_to_file fname))
+
+let exec_function = ref (fun _ -> (Sys.command ("cc " ^ !output_filename ^ "; ./a.out")))
+let set_no_execution _ = exec_function := (fun _ -> 0)
 
 let parse_function = ref Compiler.parse
 let set_optimisation _ = parse_function := Compiler.parse_and_optimise
@@ -48,6 +57,8 @@ let param_specs = [
   ("-O", Arg.Unit set_optimisation, "Enable Optimisation");
   ("-o", Arg.String set_output_file, "Specify output file");
   ("-i", Arg.String set_input_file, "Specify input file");
+  ("-c", Arg.String set_input_cli, "Pass code on CLI");
+  ("-n", Arg.Unit set_no_execution, "No execution");
   ("--ast", Arg.Unit set_ast_only , "Just build & print the AST");
 ]
 
@@ -57,6 +68,6 @@ let _ = Arg.parse param_specs drop usage_msg
 
 let _ =
   match !parse_function (!input_function ()) with
-    | Compiler.Parse p -> !output_function (!compile_function p)
+    | Compiler.Parse p -> (!output_function (!compile_function p); exit (!exec_function ()))
     | Compiler.SyntaxError msg -> prerr_endline ("Syntax Error: " ^ msg)
     | Compiler.ParseError msg -> prerr_endline ("Parse Error: " ^ msg)
