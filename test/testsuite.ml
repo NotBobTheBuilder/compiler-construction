@@ -8,12 +8,17 @@ open Test_functions
 open Test_operators
 open Test_flow
 open Test_optimiser
+open Test_runtime
 
-let tests = concat [
+let parser_tests = concat [
   Test_operators.tests;
   Test_functions.tests;
   Test_flow.tests;
   Test_optimiser.tests;
+]
+
+let runtime_tests = concat [
+  Test_runtime.tests;
 ]
 
 let passed (s, f, e) = (s + 1, f, e)
@@ -30,7 +35,7 @@ let failed (s, f, e) msg =
 let error (s, f, e) err =
   ((print_endline ("Error: " ^ err)); (s, f, e + 1))
 
-let test tally (input, expected) =
+let parser_test tally (input, expected) =
   let parsed = (Compiler.parse input) in
   match (parsed, expected) with
     | (Parse (s, p), OK) -> passed tally
@@ -43,12 +48,25 @@ let test tally (input, expected) =
 
     | (SyntaxError msg, OK) -> failed tally ("Testing: " ^ input ^ "\nSyntax Error: " ^ msg)
     | (ParseError msg, OK) -> failed tally ("Testing: " ^ input ^ "\nParse Error: " ^ msg)
-    | (_, _) -> failed tally "got a syntax error when I expected a Parse error (or vice versa)"
+    | (_, _) -> failed tally "\tgot a syntax error when I expected a Parse error (or vice versa)"
 
-let testall ts = List.fold_left test (0, 0, 0) ts
+let all_parser_tests = List.fold_left parser_test (0, 0, 0) parser_tests
+
+let runtime_test (succ, err) (program, expected) =
+  let res = Sys.command ("./main.native -q -c '"^program^"'") in
+  let sres = string_of_int res in
+  let sexp = string_of_int expected in
+  if res == expected then (succ+1, err) else (
+    print_endline ("Runtime Test Failed: "^ program ^"\n\tgot "^sres^", expected "^sexp);
+    (succ, err+1)
+    )
+
+let all_runtime_tests = List.fold_left runtime_test (0, 0) runtime_tests
+
+let test_total (psucc, pfail, perr) (rsucc, rfail) = (psucc+rsucc, pfail+rfail, perr)
 
 let _ =
-  match (testall tests) with
+  match (test_total all_parser_tests all_runtime_tests) with
     (succs, fails, errs) ->
       (Printf.eprintf "%d Successes, %d Failures, %d Errors\n" succs fails errs;
       if fails + errs > 0 then exit 1 else exit 0)

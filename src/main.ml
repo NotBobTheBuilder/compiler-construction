@@ -35,6 +35,9 @@ let set_input_file = function
   | fname -> input_function := (read_from_file fname)
 let set_input_cli s = input_function := (fun () -> s)
 
+let stdout = ref print_endline
+let set_quiet _ = stdout := (fun _ -> ())
+
 let output_filename = ref "out.asm"
 
 let output_function = ref (write_to_file !output_filename)
@@ -59,6 +62,7 @@ let param_specs = [
   ("-i", Arg.String set_input_file, "Specify input file");
   ("-c", Arg.String set_input_cli, "Pass code on CLI");
   ("-n", Arg.Unit set_no_execution, "No execution");
+  ("-q", Arg.Unit set_quiet, "No Standard Ouput");
   ("--ast", Arg.Unit set_ast_only , "Just build & print the AST");
 ]
 
@@ -68,6 +72,9 @@ let _ = Arg.parse param_specs drop usage_msg
 
 let _ =
   match !parse_function (!input_function ()) with
-    | Compiler.Parse p -> (!output_function (!compile_function p); exit (!exec_function ()))
+    | Compiler.Parse p -> (
+      !output_function (!compile_function p);
+      let res = !exec_function () in !stdout (string_of_int res); exit res
+    )
     | Compiler.SyntaxError msg -> prerr_endline ("Syntax Error: " ^ msg)
     | Compiler.ParseError msg -> prerr_endline ("Parse Error: " ^ msg)
