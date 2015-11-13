@@ -62,7 +62,7 @@ Currently compiles all expressions and some (but not all) variables - something 
 - Expression codegen is quite simple really, see `Asm.ml`
 - Stack variables fully work to any size
 - Constant propagation implemented
-- if, if/else, and 
+- if, if/else, and while loops (including constant-based branch elimination)
 
 ## Benchmarks
 
