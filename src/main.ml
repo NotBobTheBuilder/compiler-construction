@@ -72,7 +72,7 @@ let _ = Arg.parse param_specs drop usage_msg
 
 let _ =
   match !parse_function (!input_function ()) with
-    | Compiler.Parse p -> (
+    | Compiler.AST p -> (
       !output_function (!compile_function p);
       let res = !exec_function () in !stdout (string_of_int res); exit res
     )

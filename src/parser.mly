@@ -43,10 +43,10 @@
 %left DIV
 %left MOD
 
-%start <Js.program> top
+%start <Js.statement list> top
 %%
 top:
-    | el = list(statement); EOF { (Js.program_scope el, el) }
+    | el = list(statement); EOF { el }
     ;
 
 exp:

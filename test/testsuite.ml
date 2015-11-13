@@ -38,10 +38,10 @@ let error (s, f, e) err =
 let parser_test tally (input, expected) =
   let parsed = (Compiler.parse input) in
   match (parsed, expected) with
-    | (Parse (s, p), OK) -> passed tally
-    | (Parse (s, p), OPT_EQ b) -> (
+    | (AST (s, p), OK) -> passed tally
+    | (AST (s, p), OPT_EQ b) -> (
         match Compiler.parse_and_optimise b with
-          | Parse (s2, p2) -> let (_, ast) = (Optimiser.fold_program s p) in
+          | AST (s2, p2) -> let (_, ast) = (Optimiser.fold_program p) in
                               pass_if_equal tally (s, ast) (s2, p2)
         )
     | (SyntaxError _, SE) -> passed tally

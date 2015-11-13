@@ -7,7 +7,8 @@ open Asm
 open Js
 
 type parse_result =
-  | Parse of program
+  | Parse of statement list
+  | AST of program
   | SyntaxError of string
   | ParseError of string
 
@@ -17,8 +18,9 @@ let string_of_position lexbuf =
   let col = string_of_int (pos.pos_cnum - pos.pos_bol) in
   "Line "^line^", Column "^col
 
-let parse' lexbuf =
-  try Parse (Parser.top Lexer.read lexbuf) with
+let parse' lexbuf = try
+  let statements = (Parser.top Lexer.read lexbuf) in AST (program_scope statements, statements)
+  with
   | Lexer.SyntaxError msg ->  SyntaxError (string_of_position lexbuf)
   | Parser.Error ->           ParseError (string_of_position lexbuf)
 
@@ -26,7 +28,7 @@ let parse s = parse' (Lexing.from_string s)
 
 let parse_and_optimise s =  let result = parse s in
                             match result with
-                              | Parse (scope, ast) -> Parse (Optimiser.fold_program scope ast)
+                              | Parse ss -> AST (Optimiser.fold_program ss)
                               | _ -> result
 
 let to_ast (scope, p) = String.concat " " (List.map Js.string_of_statement p)

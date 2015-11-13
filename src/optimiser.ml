@@ -3,10 +3,6 @@ open Js
 open String
 module StringMap = Map.Make(String)
 
-let is_var = function
-  | Declare _ -> true
-  | _ -> false
-
 let rec fold_expr = function
   | Add (lhs, rhs) ->   let fl = fold_expr lhs in
                         let fr = fold_expr rhs in
@@ -48,7 +44,7 @@ let rec fold_expr = function
                         (match (fl, fr) with
                           | (Number n1, Number n2) -> if n1 == n2 then True else False
                           | _ -> Lt (fl, fr))
-  | Function (n, ps, scope, b) ->  let (_, fb) = fold_block scope b in Function (n, ps, scope, fb)
+  | Function (n, ps, scope, b) -> let (s, b) = fold_block b in Function (n, ps, s, b)
   | Call (name, es) ->      let fs = List.map fold_expr es in Call (name, fs)
   | a -> a
 
@@ -62,21 +58,21 @@ and is_falsy = function
   | Number 0 -> true
   | _ -> false
 
-and fold_while scope c ss = let fc = fold_expr c in
-                      if is_falsy fc then []
-                      else let (_, fs) = fold_block scope ss in [While (c, fs)]
+and fold_while scope c ss =       let fc = fold_expr c in
+                                  if is_falsy fc then []
+                                  else let (_, b) = fold_block ss in [While (c, b)]
 
-and fold_if scope c ss =    let fc = fold_expr c in
-                      if is_falsy fc then []
-                      else let (_, fs) = fold_block scope ss in
-                      if is_truthy fc then fs else [If (fc, fs)]
+and fold_if scope c ss =          let fc = fold_expr c in
+                                  if is_falsy fc then []
+                                  else let (_, fs) = fold_block ss in
+                                  if is_truthy fc then fs else [If (fc, fs)]
 
 and fold_if_else scope c ts fs =  let fc = fold_expr c in
-                            let (_, ffs) = fold_block scope fs in
-                            let (_, fts) = fold_block scope ts in
-                            if is_falsy fc then ffs
-                            else if is_truthy fc then fts
-                            else [IfElse (fc, fts, ffs)]
+                                  let (_, ffs) = fold_block fs in
+                                  let (_, fts) = fold_block ts in
+                                  if is_falsy fc then ffs
+                                  else if is_truthy fc then fts
+                                  else [IfElse (fc, fts, ffs)]
 
 and fold_statement scope = function
   | Return e -> [Return (fold_expr e)]
@@ -88,18 +84,24 @@ and fold_statement scope = function
   | Expr e -> [Expr (fold_expr e)]
 
 and fold_block' scope statements = match statements with
-  | [] -> (scope, [])
+  | [] -> []
   (* drop dead code after return *)
-  | (Return e)::tl -> (scope, [Return (fold_expr e)])
-  | hd::tl -> let (_, ss) = (fold_block' scope tl) in (scope, List.append (fold_statement scope hd) ss)
-and fold_block scope statements = let (s, ss) = (hoist_vars scope statements) in fold_block' s ss
-and hoist_vars scope ss =
-  let (vars, fs) = List.partition is_var ss in
-  let names = List.fold_left (fun acc var -> match var with
-     | Declare (i, exp) -> i::acc
-     | _ -> acc
-  ) [] vars in
-  let scope = List.fold_left (fun acc var -> StringMap.add var None acc) StringMap.empty names in
-  (scope, List.concat [vars; fs])
+  | (Return e)::tl -> [Return (fold_expr e)]
+  | hd::tl -> List.append (fold_statement scope hd) (fold_block' scope tl)
+and fold_block statements = let (scope, stats) = hoist_consts statements in (scope, fold_block' scope stats)
+
+and is_const v = match fold_statement StringMap.empty v with
+  | [Declare (i, Number _)] -> true
+  | _ -> false
+
+and extract_consts cs dec = match fold_statement StringMap.empty dec with
+  | [Declare (i, Number n)] -> StringMap.add i (Some n) cs
+  | [Declare (i, _)] -> StringMap.add i None cs
+  | _ -> cs
+
+and hoist_consts ss =
+  let (consts, rs) = List.partition is_const ss in
+  let const_scope = List.fold_left extract_consts StringMap.empty consts in
+  (const_scope, rs)
 
 let fold_program = fold_block
