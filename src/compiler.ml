@@ -7,7 +7,6 @@ open Asm
 open Js
 
 type parse_result =
-  | Parse of statement list
   | AST of program
   | SyntaxError of string
   | ParseError of string
@@ -28,7 +27,7 @@ let parse s = parse' (Lexing.from_string s)
 
 let parse_and_optimise s =  let result = parse s in
                             match result with
-                              | Parse ss -> AST (Optimiser.fold_program ss)
+                              | AST (_, ss) -> AST (Optimiser.fold_program ss)
                               | _ -> result
 
 let to_ast (scope, p) = String.concat " " (List.map Js.string_of_statement p)

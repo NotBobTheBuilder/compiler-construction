@@ -91,7 +91,7 @@ and fold_block' scope statements = match statements with
   | [] -> []
   (* drop dead code after return *)
   | (Return e)::tl -> [Return (fold_expr scope e)]
-  | hd::tl -> List.append (fold_statement scope hd) (fold_block' scope tl)
+  | hd::tl -> (fold_statement scope hd) @ (fold_block' scope tl)
 and fold_block statements = let (scope, stats) = hoist_consts statements in (scope, fold_block' scope stats)
 
 and is_const v = match fold_statement StringMap.empty v with
