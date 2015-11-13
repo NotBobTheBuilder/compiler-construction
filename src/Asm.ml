@@ -43,6 +43,36 @@ let asm_add = asm_bin_opp "addq"
 let asm_sub = asm_bin_opp "subq"
 let asm_mul = asm_bin_opp "imulq"
 
+let asm_eq () =
+let label1 = label () in
+let label2 = label () in
+"
+\tpopq %rdi
+\tpopq %rsi
+\tcmp %rsi, %rdi
+\tjne "^label1^"
+\tpushq $1
+\tjmp "^label2^"
+"^label1^":
+\tpushq $0
+"^label2^":
+"
+
+let asm_lt () =
+let label1 = label () in
+let label2 = label () in
+"
+\tpopq %rdi
+\tpopq %rsi
+\tcmp %rdi, %rsi
+\tjge "^label1^"
+\tpushq $1
+\tjmp "^label2^"
+"^label1^":
+\tpushq $0
+"^label2^":
+"
+
 let asm_push n = "
 \tpushq $" ^ (string_of_int n) ^ "
 "
@@ -64,7 +94,7 @@ let asm_branch_eq0 l = "
 "
 
 let asm_ja l = "
-\tja "^ l ^"
+\tjmp "^ l ^"
 "
 
 let rec index e = function
@@ -111,6 +141,8 @@ and asm_of_expr scope = function
   | Mul (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_mul
   | Add (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_add
   | Sub (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_sub
+  | Eq (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ (asm_eq ())
+  | Lt (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ (asm_lt ())
   | Number n -> asm_push n
   | Ident i -> get scope i
   | _ -> ""

@@ -16,4 +16,6 @@ let tests = [
 
   parse_ok "1+a/2;";
   parse_ok "a*foobar;";
+
+  parse_ok "1==1;"
 ]
