@@ -95,7 +95,8 @@ and get scope id = asm_get_var (offset scope id)
 and assign scope id = asm_set_var (offset scope id)
 
 let compile (scope_map, statements) =
-  let scope = List.map fst (StringMap.bindings scope_map) in
+  let scope_vars = List.filter (fun (a, b) -> b == None) (StringMap.bindings scope_map) in
+  let scope = List.map fst scope_vars in
   asm_prefix
   ^ asm_alloc scope
   ^ asm_of_block scope statements
