@@ -84,6 +84,7 @@ let rec asm_of_statement scope = function
   | Expr e -> asm_of_expr scope e
   | If (c, b) -> (asm_of_expr scope c) ^ (asm_of_if scope b)
   | IfElse (c, ts, fs) -> (asm_of_expr scope c) ^ (asm_of_if_else scope ts fs)
+  | While (c, ss) -> asm_of_while scope c ss
 and asm_of_if scope block =
   let label_end = label () in (asm_branch_eq0 label_end)
   ^ asm_of_block scope block
@@ -96,6 +97,15 @@ and asm_of_if_else scope ts fs =
   ^ (asm_ja label_end)
   ^ label_else ^ ":\n"
   ^ asm_of_block scope fs
+  ^ label_end ^ ":\n"
+and asm_of_while scope cond ss =
+  let label_start = label () in
+  let label_end = label () in
+  label_start ^ ":\n"
+  ^ asm_of_expr scope cond
+  ^ asm_branch_eq0 label_end
+  ^ asm_of_block scope ss
+  ^ asm_ja label_start
   ^ label_end ^ ":\n"
 and asm_of_expr scope = function
   | Mul (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_mul
