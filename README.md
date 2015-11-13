@@ -56,14 +56,13 @@ A sample program:
 
 Currently compiles all expressions and some (but not all) variables - something weird going on with the stack.
 
-- Scopes are now associated with functions and the program. A scopes is curerntly just a list of variable names
-  - The size of this list should determine how much space is allocated on the stack.
-  - (But that bit of code didn't work so I deleted it, oops)
-- Scopes are built during parsing and are only currently expanded by function parameters and `var x=..`
+- Scopes are now associated with functions and the program. A scope is currently a map of variable names to optionally inferred values
+  - The size of the map bindings list determines how much space is allocated on the stack.
+- Scopes are built during the optimiser stage and are only currently expanded by function parameters and `var x=..`
 - Expression codegen is quite simple really, see `Asm.ml`
-- Variables *sort of* work. Programs with 1 or 2 variables seem to be ok. This is blind luck because the stack is only partially working
-  - When I try to allocate memory in the stack for variables I get segfaults
-  - So I choose not to and pray instead
+- Stack variables fully work to any size
+- Constant propagation implemented
+- if, if/else, and 
 
 ## Benchmarks
 

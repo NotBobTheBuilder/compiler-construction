@@ -53,7 +53,7 @@ let parser_test tally (input, expected) =
 
 let all_parser_tests = List.fold_left parser_test (0, 0, 0) parser_tests
 
-let runtime_test flags (succ, err) (program, expected) =
+let runtime_test flags (succ, err) (program, expected, _) =
   let res = Sys.command ("./main.native "^flags^" -q -c '"^program^"'") in
   let sres = string_of_int res in
   let sexp = string_of_int expected in
@@ -64,7 +64,8 @@ let runtime_test flags (succ, err) (program, expected) =
 
 let all_runtime_tests =
   let (nsucc, nerr) = List.fold_left (runtime_test "") (0, 0) runtime_tests in
-  let (osucc, oerr) = List.fold_left (runtime_test "-O") (0, 0) runtime_tests in
+  let opt_tests = List.filter (fun (a,b,c) -> c) runtime_tests in
+  let (osucc, oerr) = List.fold_left (runtime_test "-O") (0, 0) opt_tests in
   (nsucc+osucc, nerr+oerr)
 
 let test_total (psucc, pfail, perr) (rsucc, rfail) = (psucc+rsucc, pfail+rfail, perr)

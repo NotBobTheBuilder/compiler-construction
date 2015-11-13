@@ -63,6 +63,10 @@ let asm_branch_eq0 l = "
 \tje "^ l ^"
 "
 
+let asm_ja l = "
+\tja "^ l ^"
+"
+
 let rec index e = function
   | [] -> None
   | hd::tl -> if 0 == compare hd e  then Some 1
@@ -79,9 +83,19 @@ let rec asm_of_statement scope = function
   | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
   | Expr e -> asm_of_expr scope e
   | If (c, b) -> (asm_of_expr scope c) ^ (asm_of_if scope b)
+  | IfElse (c, ts, fs) -> (asm_of_expr scope c) ^ (asm_of_if_else scope ts fs)
 and asm_of_if scope block =
   let label_end = label () in (asm_branch_eq0 label_end)
   ^ asm_of_block scope block
+  ^ label_end ^ ":\n"
+and asm_of_if_else scope ts fs =
+  let label_else = label () in
+  let label_end = label () in
+  (asm_branch_eq0 label_else)
+  ^ asm_of_block scope ts
+  ^ (asm_ja label_end)
+  ^ label_else ^ ":\n"
+  ^ asm_of_block scope fs
   ^ label_end ^ ":\n"
 and asm_of_expr scope = function
   | Mul (a, b) -> (asm_of_expr scope a) ^ (asm_of_expr scope b) ^ asm_mul
