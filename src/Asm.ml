@@ -14,6 +14,9 @@ format:
 \t.string \"%d\\n\\0\"
 \t.section __TEXT,__text,regular,pure_instructions
 \t.globl _main
+"
+
+let asm_main = "
 _main:
 \tpushq    $0
 "
@@ -116,25 +119,30 @@ let rec asm_of_statement scope = function
   | IfElse (c, ts, fs) -> (asm_of_expr scope c) ^ (asm_of_if_else scope ts fs)
   | While (c, ss) -> asm_of_while scope c ss
 and asm_of_if scope block =
-  let label_end = label () in (asm_branch_eq0 label_end)
-  ^ asm_of_block scope block
+  let label_end = label () in
+  let (functions, asm_block) = asm_of_block scope block in
+  (asm_branch_eq0 label_end)
+  ^ asm_block
   ^ label_end ^ ":\n"
 and asm_of_if_else scope ts fs =
   let label_else = label () in
   let label_end = label () in
+  let (functions_true, asm_block_true) = asm_of_block scope ts in
+  let (functions_false, asm_block_false) = asm_of_block scope fs in
   (asm_branch_eq0 label_else)
-  ^ asm_of_block scope ts
+  ^ asm_block_true
   ^ (asm_ja label_end)
   ^ label_else ^ ":\n"
-  ^ asm_of_block scope fs
+  ^ asm_block_false
   ^ label_end ^ ":\n"
 and asm_of_while scope cond ss =
   let label_start = label () in
   let label_end = label () in
+  let (functions, asm_block) = asm_of_block scope ss in
   label_start ^ ":\n"
   ^ asm_of_expr scope cond
   ^ asm_branch_eq0 label_end
-  ^ asm_of_block scope ss
+  ^ asm_block
   ^ asm_ja label_start
   ^ label_end ^ ":\n"
 and asm_of_expr scope = function
@@ -146,15 +154,23 @@ and asm_of_expr scope = function
   | Number n -> asm_push n
   | Ident i -> get scope i
   | _ -> ""
-and asm_of_block scope statements = (String.concat "\n" (List.map (asm_of_statement scope) statements))
+and asm_of_block scope statements =
+  let (functions, block) = hoist_functions statements in
+    (functions, (String.concat "\n" (List.map (asm_of_statement scope) block)))
+and is_function = function
+  | Expr (Function _) -> true
+  | _ -> false
+and hoist_functions statements = List.partition is_function statements
 and get scope id = asm_get_var (offset scope id)
 and assign scope id = asm_set_var (offset scope id)
 
 let compile (scope_map, statements) =
   let scope_vars = List.filter (fun (a, b) -> b == None) (StringMap.bindings scope_map) in
   let scope = List.map fst scope_vars in
+  let (functions, asm_block) = asm_of_block scope statements in
   asm_prefix
+  ^ asm_main
   ^ asm_alloc scope
-  ^ asm_of_block scope statements
+  ^ asm_block
   ^ asm_free scope
   ^ asm_exit_printing_rsi
