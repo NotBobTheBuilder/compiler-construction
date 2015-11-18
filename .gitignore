@@ -1,5 +1,7 @@
 _build/
 
+.runtime_tests
+
 testsuite.native
 main.native
 out.asm

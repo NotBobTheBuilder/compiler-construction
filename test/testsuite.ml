@@ -1,3 +1,5 @@
+open Array
+open Sys
 open Utils
 open Compiler
 open Js
@@ -17,9 +19,14 @@ let parser_tests = concat [
   Test_optimiser.tests;
 ]
 
-let runtime_tests = concat [
+let exec_signal name = 0 == compare name ".runtime_tests"
+let folder_files = (Array.fold_right (fun b acc -> b::acc) (Sys.readdir ".") [])
+let exec_runtime_tests = List.exists exec_signal folder_files
+
+let runtime_tests = if exec_runtime_tests then concat [
   Test_runtime.tests;
 ]
+else []
 
 let passed (s, f, e) = (s + 1, f, e)
 
