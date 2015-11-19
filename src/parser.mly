@@ -14,6 +14,7 @@
 
 %token TRUE
 %token FALSE
+%token UNDEFINED
 
 %token VAR
 %token EQ
@@ -53,6 +54,7 @@ exp:
     | i = NUMBER              { Js.Number i }
     | FALSE                   { Js.False }
     | TRUE                    { Js.True }
+    | UNDEFINED               { Js.Undefined }
     | f = func                { f }
     | f = funcCall            { f }
     | e = exp; ADD; f = exp   { Js.Add (e, f) }

@@ -27,6 +27,7 @@ rule read =
     | "return"    { RETURN }
     | "true"      { TRUE }
     | "false"     { FALSE }
+    | "undefined" { UNDEFINED }
     | "if"        { IF }
     | "else"      { ELSE }
     | "while"     { WHILE }

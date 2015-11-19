@@ -29,5 +29,7 @@ let tests = [
 
   run_js_no_opt "function abc() { return 2; }; abc();" 2;
 
+  run_js_no_opt "function abc() { }; abc() == undefined;" 1;
+
   run_js_no_opt "function xyz() { return 4+1; }; var a = xyz() + 1; a;" 6;
 ]
