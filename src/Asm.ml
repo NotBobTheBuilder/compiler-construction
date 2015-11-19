@@ -23,10 +23,6 @@ format:
 
 let asm_f_call n = "
 \tcallq "^n^"
-"
-
-let asm_f_call_and_push n = "
-\tcallq "^n^"
 \tpushq %rax
 "
 
@@ -144,7 +140,6 @@ let rec offset scope id = match index id scope with
 let rec asm_of_statement scope = function
   | Declare (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
   | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
-  | Expr (Call (n, ps)) -> asm_f_call n
   | Expr e -> asm_of_expr scope e
   | If (c, b) -> (asm_of_expr scope c) ^ (asm_of_if scope b)
   | IfElse (c, ts, fs) -> (asm_of_expr scope c) ^ (asm_of_if_else scope ts fs)
@@ -191,7 +186,7 @@ and asm_of_expr scope = function
     let (_, asm) = asm_of_block scope b in
       asm_f_start name scope
       ^ asm
-  | Call (n, ps) -> asm_f_call_and_push n
+  | Call (n, ps) -> (asm_f_call n)
   | _ -> ""
 and asm_of_block scope statements =
   let (functions, block) = hoist_functions statements in
