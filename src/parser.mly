@@ -88,24 +88,29 @@ bracketed(X):
       { x }
     ;
 
+condStart(X):
+  | X; condition = bracketed(exp); block = block
+    { (condition, block) }
+  ;
+
 whileBlock:
-    | WHILE; condition = bracketed(exp); block = block
-      { Js.While (condition, block) }
-    ;
+  | b = condStart(WHILE)
+    { Js.While b }
+  ;
 
 ifBlock:
-    | IF; condition = bracketed(exp); block = block
-      { Js.If (condition, block) }
+    | b = condStart(IF)
+      { Js.If b }
     ;
 
 ifElseBlock:
-    | i = ifBlock; ELSE; f = block
-      { match i with | Js.If (e, t) -> Js.IfElse (e, t, f) }
+    | i = condStart(IF); ELSE; f = block
+      { let (e, t) = i in Js.IfElse (e, t, f) }
     ;
 
 func:
     | FUNCTION; i = option(IDENT); ps = paramList; body = block
-      { Js.Function (i, ps, Js.function_scope ps body, body )}
+      { Js.Function (i, ps, Js.function_scope ps body, body@[Js.Return Js.Undefined] )}
     ;
 
 funcCall:

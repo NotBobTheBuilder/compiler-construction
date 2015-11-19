@@ -26,4 +26,6 @@ let tests = [
   run_js_no_opt "var a = 100; var b = 5; var c = 1; if (a==b) {c=2;} else {c=3;} c;" 3;
 
   run_js_no_opt "var a = 0; while (a<5) {a=a+1;} a;" 5;
+
+  run_js_no_opt "function xyz() { return 4+1; }; var a = xyz() + 1; a;" 6;
 ]

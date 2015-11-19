@@ -28,6 +28,7 @@ and expr =
   | Eq of (expr * expr)
   | True
   | False
+  | Undefined
   | Ident of string
   | Number of int
   | Function of (fname * params * scope * block)
@@ -55,6 +56,7 @@ and string_of_expr e = match e with
   | Eq (lhs, rhs) -> "(== " ^ (string_of_expr lhs) ^ ", " ^ (string_of_expr rhs) ^ ")"
   | Ident i -> "(Ident " ^ i ^ ")"
   | Number n -> "(Number " ^ (string_of_int n) ^ ")"
+  | Undefined -> "(Undefined)"
   | True -> "(True)"
   | False -> "(False)"
   | Function (name, params, scope, body) -> string_of_function name params body
@@ -63,7 +65,7 @@ and string_of_expr e = match e with
 and string_of_statement s = match s with
   | Return e ->         let exp = string_of_expr e in
                           "(Return " ^ exp ^ ")"
-  | Declare (id, e) ->   let exp = string_of_expr e in
+  | Declare (id, e) ->  let exp = string_of_expr e in
                           "(Declare '" ^ id ^"' " ^ exp ^ ");"
   | Assign (id, e) ->   let exp = string_of_expr e in
                           "(Assign '" ^ id ^"' " ^ exp ^ ");"
