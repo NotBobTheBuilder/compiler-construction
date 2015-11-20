@@ -1,4 +1,4 @@
-.PHONY: build test deps clean compiletest sample
+.PHONY: build test deps clean compiletest sample benchmarks
 .DEFAULT_GOAL := build
 clean:
 	rm -rf _build
@@ -14,6 +14,13 @@ build: deps compile
 test: deps compile compiletest
 	./testsuite.native
 sample: build
-	./main.native -i something.js
+	./main.native -i something.js -n
 	cc out.asm
 	./a.out
+benchmarks: build
+	./main.native -i something.js -n
+	cc out.asm
+	echo "=== Node.js ==="
+	time node something.js
+	echo "=== Mine ==="
+	time ./a.out
