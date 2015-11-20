@@ -66,11 +66,8 @@ Currently compiles all expressions and some (but not all) variables - something 
 
 ## Benchmarks
 
-| Program  | Node     | Mine     |
-|----------|----------|----------|
-| 100.js   | 0m0.217s | 0m0.004s |
-| 1000.js  | 0m0.074s | 0m0.005s |
-| 1010.js  | 0m0.005s | 0m0.005s |
-| 50.js    | 0m0.075s | 0m0.004s |
-| 50.js    | 0m0.075s | 0m0.004s |
-| 80100.js | 0m0.073s | 0m0.004s |
+| Node     | Mine     | Program                                                                                       |
+|----------|----------|-----------------------------------------------------------------------------------------------|
+| 0m0.080s | 0m0.004s | `function fifty(a) { if (a < 50) { return 1 + fifty(a+1); } else { return 1; } }; fifty(1);`  |
+| 0m0.076s | 0m0.004s | `var a = 0; while (a<5000) {a=a+1;} a;`                                                       |
+| 0m0.076s | 0m0.005s | lots of addition                                                                              |
