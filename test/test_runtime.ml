@@ -37,4 +37,10 @@ let tests = [
 
   run_js_no_opt "function r1() { var a = 1; return a; }; function r2() { return r1() + r1(); }; r2();" 2;
 
+  run_js_no_opt "function double(a) { return a+a; }; double(1);" 2;
+
+  run_js_no_opt "function add(a,b) { return a + b; }; add(1,2);" 3;
+
+  run_js_no_opt "function fifty(a) { if (a < 50) { return 1 + fifty(a+1); } else { return 1; } }; fifty(1);" 50;
+
 ]

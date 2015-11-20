@@ -83,8 +83,8 @@ and string_of_statement s = match s with
                           "(Expr " ^ exp ^ ");"
 
 let rec p' (s, ss) this = match this with
-  | Expr (Function (n, ps, s, b)) -> let (scope, b') = psb b in
-                              let s' = Scope.add_all ps scope in
+  | Expr (Function (n, ps, s, b)) -> let (s'', b') = psb b in
+                              let s' = s''@[Scope.from_list ps]@s in
                               (s', [Expr(Function (n, ps, s', b'))]@ss)
   | Declare (id, a) -> (Scope.add id None s, [Declare (id,a)]@ss)
   | a -> (s, [a]@ss)

@@ -6,6 +6,10 @@ open List
 let count = ref 0
 let label _ = count := !count+1; "label"^(string_of_int !count)
 
+let rec addresses = function
+  | 0 -> []
+  | n -> (string_of_int (0+(8*n))):: addresses (n-1)
+
 let get_or_else a = function
   | Some n -> n
   | None -> a
@@ -19,17 +23,36 @@ format:
 
 "
 
-let asm_f_call n = "
+let asm_f_call n ps = let prefix = (
+                        if ps == 0 then ""
+                        else if ps == 1 then "\tpopq %rdi\n"
+                        else "\tpopq %rdi\n\tpopq %rsi\n"
+                      ) in prefix ^ "
 \tcallq "^n^"
 \tpushq %rax
 "
 
-let asm_f_start n s = let size = string_of_int (8*(1+(Scope.size s))) in "
+let asm_f_start n s ps = let size = string_of_int (8*(1+(Scope.size s))) in
+                        if ps == 0 then "
 " ^ n ^ ":
 \tpushq %rbp
 \tmovq %rsp, %rbp
 \tsubq $" ^ size ^", %rsp
-
+"
+                        else if ps == 1 then "
+" ^ n ^ ":
+\tpushq %rbp
+\tmovq %rsp, %rbp
+\tsubq $" ^ size ^", %rsp
+\tmovq %rdi, -8(%rbp)
+"
+                        else "
+" ^ n ^ ":
+\tpushq %rbp
+\tmovq %rsp, %rbp
+\tsubq $" ^ size ^", %rsp
+\tmovq %rdi, -8(%rbp)
+\tmovq %rsi, -16(%rbp)
 "
 
 let asm_f_end s = let size = string_of_int (8*(1+(Scope.size s))) in "
@@ -55,7 +78,7 @@ let asm_free s = let size = string_of_int (8*(1+(Scope.size s))) in "
 "
 
 let asm_exit_printing_rsi = "
-\tmovq %rsi, %rdi
+\tmovq $0, %rdi
 \tcall _exit
 "
 
@@ -124,6 +147,11 @@ let asm_ja l = "
 \tjmp "^ l ^"
 "
 
+(* let asm_pop_for_call n = "
+\tpopq %rsi
+\tmovq %rsi, "^ n ^"(%rbp)
+" *)
+
 let rec asm_of_statement scope = function
   | Declare (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
   | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
@@ -171,9 +199,10 @@ and asm_of_expr scope = function
   | Function (n, p, s, b) ->
     let name = get_or_else (label ()) n in
     let (_, asm) = asm_of_block s b in
-      asm_f_start name s
+      asm_f_start name s (List.length p)
       ^ asm
-  | Call (n, ps) -> (asm_f_call n)
+  | Call (n, ps) -> (String.concat "\n\n" (List.map (asm_of_expr scope) ps))
+    ^ (asm_f_call n (List.length ps))
   | _ -> ""
 and asm_of_block scope statements =
   let (functions, block) = hoist_functions statements in
