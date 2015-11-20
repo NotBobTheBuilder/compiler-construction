@@ -68,6 +68,6 @@ Currently compiles all expressions and some (but not all) variables - something 
 
 | Node     | Mine     | Program                                                                                       |
 |----------|----------|-----------------------------------------------------------------------------------------------|
-| 0m0.080s | 0m0.004s | `function fifty(a) { if (a < 50) { return 1 + fifty(a+1); } else { return 1; } }; fifty(1);`  |
+| 0m0.080s | 0m0.004s | `function fifty(a) { if (a < 50) { return fifty(a+1); } else { return a; } }; fifty(1);`  |
 | 0m0.076s | 0m0.004s | `var a = 0; while (a<5000) {a=a+1;} a;`                                                       |
 | 0m0.076s | 0m0.005s | lots of addition                                                                              |
