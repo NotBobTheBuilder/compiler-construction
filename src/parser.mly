@@ -44,10 +44,10 @@
 %left DIV
 %left MOD
 
-%start <Js.statement list> top
+%start <Js.program> top
 %%
 top:
-    | el = list(statement); EOF { el }
+    | ss = list(statement); EOF { Js.psb ss }
     ;
 
 exp:
@@ -112,7 +112,7 @@ ifElseBlock:
 
 func:
     | FUNCTION; i = option(IDENT); ps = paramList; body = block
-      { Js.Function (i, ps, Js.function_scope ps body, body@[Js.Return Js.Undefined] )}
+      { Js.Function (i, ps, [], body@[Js.Return Js.Undefined] )}
     ;
 
 funcCall:

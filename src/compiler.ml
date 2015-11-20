@@ -18,7 +18,7 @@ let string_of_position lexbuf =
   "Line "^line^", Column "^col
 
 let parse' lexbuf = try
-  let statements = (Parser.top Lexer.read lexbuf) in AST (program_scope statements, statements)
+  AST (Parser.top Lexer.read lexbuf)
   with
   | Lexer.SyntaxError msg ->  SyntaxError (string_of_position lexbuf)
   | Parser.Error ->           ParseError (string_of_position lexbuf)
@@ -27,7 +27,7 @@ let parse s = parse' (Lexing.from_string s)
 
 let parse_and_optimise s =  let result = parse s in
                             match result with
-                              | AST (_, ss) -> AST (Optimiser.fold_program ss)
+                              | AST (s, ss) -> AST (Optimiser.fold_program s ss)
                               | _ -> result
 
 let to_ast (scope, p) = String.concat " " (List.map Js.string_of_statement p)

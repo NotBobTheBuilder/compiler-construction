@@ -1,10 +1,10 @@
 open String
 open List
-module StringMap = Map.Make(String)
+open Scope
 
 type params = string list
 and fname = string option
-and scope = int option StringMap.t
+and scope = Scope.t
 and block = statement list
 and program = (scope * block)
 and statement =
@@ -82,13 +82,12 @@ and string_of_statement s = match s with
   | Expr e ->           let exp = string_of_expr e in
                           "(Expr " ^ exp ^ ");"
 
-
-let scope_builder initial_scope statements = List.fold_left (fun scope v -> match v with
-  | Declare (id, expr) -> StringMap.add id None scope
-  | _ -> scope
-  ) initial_scope statements
-
-let scope_of_parameters = List.fold_left (fun scope e -> StringMap.add e None scope) StringMap.empty
-
-let program_scope = scope_builder StringMap.empty
-let function_scope ps = scope_builder (scope_of_parameters ps)
+let rec p' (s, ss) this = match this with
+  | Expr (Function (n, ps, s, b)) -> let (scope, b') = psb b in
+                              let s' = Scope.add_all ps scope in
+                              (s', [Expr(Function (n, ps, s', b'))]@ss)
+  | Declare (id, a) -> (Scope.add id None s, [Declare (id,a)]@ss)
+  | a -> (s, [a]@ss)
+and psb statements =
+  let (a,b) = List.fold_left p' (Scope.new_scope Scope.empty, []) statements in
+  (a, rev b)

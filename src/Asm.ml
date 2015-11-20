@@ -1,9 +1,7 @@
 open Js
 open String
-module StringMap = Map.Make(String)
+open Scope
 open List
-
-exception Variable_Not_In_Scope
 
 let count = ref 0
 let label _ = count := !count+1; "label"^(string_of_int !count)
@@ -26,7 +24,7 @@ let asm_f_call n = "
 \tpushq %rax
 "
 
-let asm_f_start n s = let size = string_of_int (8*(1+(List.length s))) in "
+let asm_f_start n s = let size = string_of_int (8*(1+(Scope.size s))) in "
 " ^ n ^ ":
 \tpushq %rbp
 \tmovq %rsp, %rbp
@@ -34,7 +32,7 @@ let asm_f_start n s = let size = string_of_int (8*(1+(List.length s))) in "
 
 "
 
-let asm_f_end s = let size = string_of_int (8*(1+(List.length s))) in "
+let asm_f_end s = let size = string_of_int (8*(1+(Scope.size s))) in "
 \tpopq %rax
 \taddq $" ^ size ^", %rsp
 \tpopq %rbp
@@ -47,11 +45,11 @@ _main:
 \tpushq    $0
 "
 
-let asm_alloc s = let size = string_of_int (8*(1+(List.length s))) in "
+let asm_alloc s = let size = string_of_int (8*(1+(Scope.size s))) in "
 \tsubq $" ^ size ^", %rsp
 "
 
-let asm_free s = let size = string_of_int (8*(1+(List.length s))) in "
+let asm_free s = let size = string_of_int (8*(1+(Scope.size s))) in "
 \tpopq %rsi
 \taddq $" ^ size ^", %rsp
 "
@@ -126,17 +124,6 @@ let asm_ja l = "
 \tjmp "^ l ^"
 "
 
-let rec index e = function
-  | [] -> None
-  | hd::tl -> if 0 == compare hd e  then Some 1
-                          else (match index e tl with
-                                | None -> None
-                                | Some x -> Some (x+1))
-
-let rec offset scope id = match index id scope with
-  | None -> raise Variable_Not_In_Scope
-  | Some o -> string_of_int (-8*o)
-
 let rec asm_of_statement scope = function
   | Declare (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
   | Assign (i, e) -> (asm_of_expr scope e) ^ (assign scope i)
@@ -201,12 +188,10 @@ and hoist_functions' statement (fs, ss) = match statement with
   | Assign (id, Function f) -> (Expr (Function f)::fs, ss)
   | a -> (fs, a::ss)
 and hoist_functions statements = List.fold_right hoist_functions' statements ([], [])
-and get scope id = asm_get_var (offset scope id)
-and assign scope id = asm_set_var (offset scope id)
+and get scope id = asm_get_var (Scope.offset id scope)
+and assign scope id = asm_set_var (Scope.offset id scope)
 
-let compile (scope_map, statements) =
-  let scope_vars = List.filter (fun (a, b) -> b == None) (StringMap.bindings scope_map) in
-  let scope = List.map fst scope_vars in
+let compile (scope, statements) =
   let (asm_functions, asm_block) = asm_of_block scope statements in
   asm_prefix
   ^ asm_functions
