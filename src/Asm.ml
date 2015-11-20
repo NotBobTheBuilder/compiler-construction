@@ -170,8 +170,8 @@ and asm_of_expr scope = function
   | Ident i -> get scope i
   | Function (n, p, s, b) ->
     let name = get_or_else (label ()) n in
-    let (_, asm) = asm_of_block scope b in
-      asm_f_start name scope
+    let (_, asm) = asm_of_block s b in
+      asm_f_start name s
       ^ asm
   | Call (n, ps) -> (asm_f_call n)
   | _ -> ""
