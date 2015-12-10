@@ -25,6 +25,7 @@
 %token IF
 %token ELSE
 %token WHILE
+%token FOR
 %token BRACKET_OPEN
 %token BRACKET_CLOSE
 %token COMMA
@@ -47,7 +48,7 @@
 %start <Js.program> top
 %%
 top:
-    | ss = list(statement); EOF { Js.psb ss }
+    | ss = list(statement); EOF { Js.psb (List.concat ss) }
     ;
 
 exp:
@@ -71,18 +72,19 @@ exp:
     ;
 
 statement:
-    | RETURN; e = exp; SEMICOLON              { Js.Return e }
-    | VAR; e = IDENT; EQ; f = exp; SEMICOLON  { Js.Declare (e, f) }
-    | e = IDENT; EQ; f = exp; SEMICOLON       { Js.Assign (e, f) }
-    | w = whileBlock                          { w }
-    | i = ifElseBlock                         { i }
-    | i = ifBlock                             { i }
-    | e = exp; SEMICOLON                      { Js.Expr e }
+    | RETURN; e = exp; SEMICOLON              { [Js.Return e] }
+    | VAR; e = IDENT; EQ; f = exp; SEMICOLON  { [Js.Declare (e, f)] }
+    | e = IDENT; EQ; f = exp; SEMICOLON       { [Js.Assign (e, f)] }
+    | f = forBlock                            { f }
+    | w = whileBlock                          { [w] }
+    | i = ifElseBlock                         { [i] }
+    | i = ifBlock                             { [i] }
+    | e = exp; SEMICOLON                      { [Js.Expr e] }
     ;
 
 block:
     | BRACE_OPEN; b = list(statement); BRACE_CLOSE
-      { b }
+      { List.concat b }
     ;
 
 bracketed(X):
@@ -93,6 +95,11 @@ bracketed(X):
 condStart(X):
   | X; condition = bracketed(exp); block = block
     { (condition, block) }
+  ;
+
+forBlock:
+  | FOR; BRACKET_OPEN; pre = statement; e = exp; SEMICOLON; post = statement; BRACKET_CLOSE; b = block
+    { pre@[Js.While (e, (b@post))] }
   ;
 
 whileBlock:

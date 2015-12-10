@@ -23,6 +23,7 @@ rule read =
     | white       { read lexbuf }
     | newline     { next_line lexbuf; read lexbuf }
     | "var"       { VAR }
+    | "for"       { FOR }
     | "function"  { FUNCTION }
     | "return"    { RETURN }
     | "true"      { TRUE }
