@@ -87,6 +87,7 @@ let rec p' (s, ss) this = match this with
                               let s' = s''@[Scope.from_list ps]@s in
                               (s', [Expr(Function (n, ps, s', b'))]@ss)
   | Declare (id, a) -> (Scope.add id None s, [Declare (id,a)]@ss)
+  | While (c, b) -> let (s', b') = psb b in (s@s', [While (c, b')]@ss)
   | a -> (s, [a]@ss)
 and psb statements =
   let (a,b) = List.fold_left p' (Scope.new_scope Scope.empty, []) statements in

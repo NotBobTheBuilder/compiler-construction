@@ -66,8 +66,31 @@ Currently compiles all expressions and some (but not all) variables - something 
 
 ## Benchmarks
 
-| Node     | Mine     | Program                                                                                       |
-|----------|----------|-----------------------------------------------------------------------------------------------|
-| 0m0.080s | 0m0.004s | `function fifty(a) { if (a < 50) { return fifty(a+1); } else { return a; } }; fifty(1);`  |
-| 0m0.076s | 0m0.004s | `var a = 0; while (a<5000) {a=a+1;} a;`                                                       |
-| 0m0.076s | 0m0.005s | lots of addition                                                                              |
+Running this code:
+
+    var a = 1;
+    for (var i = 0; i < 10000; i = i + 1) {
+        for (var j = 0; j < 10000; j = j + 1) {
+            a = a+1;
+        }
+    }
+    
+    a;
+
+I got these results:
+
+
+    === Node.js ===
+    time (node something.js || echo)
+    
+    real    0m0.135s
+    user    0m0.125s
+    sys 0m0.008s
+    === Mine ===
+    time (./a.out || echo)
+    
+    
+    real    0m0.005s
+    user    0m0.001s
+    sys 0m0.001s
+    

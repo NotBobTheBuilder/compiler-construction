@@ -18,9 +18,9 @@ sample: build
 	cc out.asm
 	./a.out
 benchmarks: build
-	./main.native -i something.js -n
+	./main.native -O -i something.js -n
 	cc out.asm
 	echo "=== Node.js ==="
-	time node something.js
+	time (node something.js || echo)
 	echo "=== Mine ==="
-	time ./a.out
+	time (./a.out || echo)

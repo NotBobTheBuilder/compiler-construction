@@ -1,7 +1,7 @@
 open List
 module StringMap = Map.Make(String)
 
-exception Variable_Not_In_Scope
+exception Variable_Not_In_Scope of string
 
 type t = int option StringMap.t list
 
@@ -11,17 +11,24 @@ let rec mem var = function
 
 let new_scope scope = StringMap.empty::scope
 
+let string_of_intopt = function
+  | None -> "None"
+  | Some i -> "Some(" ^ (string_of_int i) ^ ")"
+let string_of_bindings bs = String.concat ", " (List.map (fun (a,b) -> a^": " ^ (string_of_intopt b)) bs)
+let string_of_scope s = "{ " ^ (string_of_bindings (StringMap.bindings s)) ^ " }"
+
 let rec index e = function
-  | [] -> raise Variable_Not_In_Scope
+  | [] -> raise (Variable_Not_In_Scope ("index of " ^ e))
   | hd::tl -> if 0 == compare hd e then 1 else 1 + index e tl
 
 let rec offset' var = function
-  | [] -> raise Variable_Not_In_Scope
+  | [] -> raise (Variable_Not_In_Scope ("offset of " ^ var))
   | hd::tl -> if StringMap.mem var hd
               then index var (List.map fst (StringMap.bindings hd))
               else (StringMap.cardinal hd) + offset' var tl
 
-let offset a b = string_of_int (-8 * (offset' a b))
+let offset a b = try string_of_int (-8 * (offset' a b)) with
+  | Variable_Not_In_Scope v -> raise (Variable_Not_In_Scope (v ^ (String.concat "," (List.map string_of_scope b))))
 
 let rec find var = function
   | [] -> None
